@@ -7,15 +7,14 @@ import { LikeC4VitePlugin } from 'likec4/vite-plugin';
 // https://astro.build/config
 export default defineConfig({
 	// GitHub Pages configuration
-	// Update these values for your repository:
-	// site: 'https://<username>.github.io',
-	// base: '/<repo-name>',
+	site: 'https://rpreissel.github.io',
+	base: '/c4-astro',
 
 	integrations: [
 		starlight({
 			title: 'Architecture Docs',
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/rpreissel/c4-astro' },
 			],
 			sidebar: [
 				{
