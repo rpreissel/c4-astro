@@ -1,0 +1,137 @@
+---
+title: Getting Started
+description: Learn how to add and modify C4 architecture diagrams
+---
+
+This guide explains how to create and modify C4 architecture diagrams in this project.
+
+## Project Structure
+
+The LikeC4 model files are located in `src/likec4/`:
+
+```
+src/likec4/
+├── spec.c4      # Element and relationship type definitions
+├── model.c4     # Architecture model (systems, containers, components)
+└── views.c4     # View definitions (diagrams)
+```
+
+## Adding a New Element
+
+To add a new element to the architecture, edit `src/likec4/model.c4`:
+
+```c4
+// Add a new external system
+monitoring = externalSystem 'Monitoring Service' {
+  description 'Application monitoring and alerting'
+  technology 'Datadog'
+}
+
+// Add a relationship
+ecommerce.api -> monitoring 'Sends metrics'
+```
+
+## Creating a New View
+
+Views are defined in `src/likec4/views.c4`. Here's how to create a new view:
+
+```c4
+views {
+  // A new focused view
+  view myCustomView {
+    title 'My Custom View'
+    description 'Shows specific elements'
+
+    include customer
+    include ecommerce.webapp
+    include ecommerce.api
+  }
+}
+```
+
+## Using Diagrams in Documentation
+
+To embed a diagram in your MDX documentation:
+
+```mdx
+---
+title: My Architecture Page
+---
+
+import LikeC4View from '../../../components/LikeC4View.astro'
+
+## System Overview
+
+<LikeC4View viewId="index" />
+```
+
+### Available Views
+
+| View ID | Description |
+|---------|-------------|
+| `index` | System Context - high-level overview |
+| `containers` | Container Diagram - internal structure |
+| `components` | API Components - detailed component view |
+| `orderFlow` | Order Processing Flow - static view |
+| `checkoutSequence` | Checkout Process - dynamic sequence diagram |
+
+## Creating Dynamic Views (Sequence Diagrams)
+
+Dynamic views show step-by-step interactions and can be displayed as sequence diagrams:
+
+```c4
+views {
+  dynamic view mySequence {
+    title 'My Sequence Diagram'
+    description 'Step-by-step process flow'
+
+    // Define steps in order
+    customer -> webapp 'initiates action'
+    webapp -> api 'sends request' {
+      notes '
+        Additional details about this step
+      '
+    }
+    api -> database 'stores data'
+    
+    // Response flows (reverse direction)
+    webapp <- api 'returns result'
+    customer <- webapp 'shows confirmation'
+
+    // Define actor order for sequence diagram
+    include
+      customer,
+      webapp,
+      api,
+      database
+  }
+}
+```
+
+## LikeC4View Props
+
+The `LikeC4View` component accepts these props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `viewId` | `string` | required | The ID of the view to render |
+| `interactive` | `boolean` | `true` | Enable zoom, pan, and navigation controls |
+| `displayVariant` | `'diagram' \| 'sequence'` | `'diagram'` | For dynamic views: display as diagram or sequence |
+
+### Displaying Dynamic Views as Sequence Diagrams
+
+To render a dynamic view as a sequence diagram, use the `displayVariant` prop:
+
+```mdx
+{/* Default: renders as diagram */}
+<LikeC4View viewId="checkoutSequence" />
+
+{/* Renders as sequence diagram */}
+<LikeC4View viewId="checkoutSequence" displayVariant="sequence" />
+```
+
+## Further Reading
+
+- [LikeC4 Documentation](https://likec4.dev/docs/)
+- [C4 Model](https://c4model.com/)
+- [Astro Starlight](https://starlight.astro.build/)

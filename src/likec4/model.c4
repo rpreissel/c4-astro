@@ -1,0 +1,100 @@
+// LikeC4 Model Definition
+// Example: E-Commerce System Architecture
+
+model {
+  // Actors
+  customer = actor 'Customer' {
+    description 'End user who browses and purchases products'
+  }
+
+  admin = actor 'Administrator' {
+    description 'Internal user who manages products and orders'
+  }
+
+  // Main System
+  ecommerce = system 'E-Commerce Platform' {
+    description 'Online shopping platform for customers'
+
+    // Containers
+    webapp = container 'Web Application' {
+      description 'Single-page application for customer interactions'
+      technology 'React, TypeScript'
+    }
+
+    adminPortal = container 'Admin Portal' {
+      description 'Internal dashboard for managing the platform'
+      technology 'React, TypeScript'
+    }
+
+    api = container 'API Gateway' {
+      description 'REST API for all client applications'
+      technology 'Node.js, Express'
+
+      // Components
+      authService = component 'Auth Service' {
+        description 'Handles authentication and authorization'
+        technology 'JWT, OAuth2'
+      }
+
+      productService = component 'Product Service' {
+        description 'Manages product catalog'
+        technology 'Node.js'
+      }
+
+      orderService = component 'Order Service' {
+        description 'Processes customer orders'
+        technology 'Node.js'
+      }
+
+      paymentService = component 'Payment Service' {
+        description 'Handles payment processing'
+        technology 'Node.js'
+      }
+    }
+
+    database = database 'Database' {
+      description 'Primary data storage'
+      technology 'PostgreSQL'
+    }
+
+    cache = database 'Cache' {
+      description 'In-memory cache for performance'
+      technology 'Redis'
+    }
+  }
+
+  // External Systems
+  paymentGateway = externalSystem 'Payment Gateway' {
+    description 'External payment processing service'
+    technology 'Stripe API'
+  }
+
+  emailService = externalSystem 'Email Service' {
+    description 'Transactional email delivery'
+    technology 'SendGrid'
+  }
+
+  // Relationships
+  customer -> webapp 'Uses'
+  admin -> adminPortal 'Manages'
+
+  webapp -> api 'Calls' {
+    technology 'HTTPS/REST'
+  }
+
+  adminPortal -> api 'Calls' {
+    technology 'HTTPS/REST'
+  }
+
+  api.authService -> database 'Reads/Writes user data'
+  api.productService -> database 'Reads/Writes products'
+  api.productService -> cache 'Caches product data'
+  api.orderService -> database 'Reads/Writes orders'
+  api.orderService -> api.paymentService 'Initiates payment'
+  api.paymentService -> paymentGateway 'Processes payment' {
+    technology 'HTTPS'
+  }
+  api.orderService -> emailService 'Sends notifications' {
+    technology 'HTTPS'
+  }
+}

@@ -1,0 +1,56 @@
+// LikeC4 Model Specification
+// This file defines the element types, relationship types, and styling
+
+specification {
+  // Element types following C4 model hierarchy
+  element actor {
+    style {
+      shape person
+      color amber
+    }
+  }
+
+  element system {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
+
+  element externalSystem {
+    style {
+      shape rectangle
+      color gray
+    }
+  }
+
+  element container {
+    style {
+      shape rectangle
+      color green
+    }
+  }
+
+  element component {
+    style {
+      shape rectangle
+      color indigo
+    }
+  }
+
+  element database {
+    style {
+      shape storage
+      color slate
+    }
+  }
+
+  // Relationship types (simple declarations)
+  relationship async
+  relationship sync
+
+  // Tags for additional semantics
+  tag deprecated
+  tag external
+  tag critical
+}

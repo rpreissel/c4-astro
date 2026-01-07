@@ -1,0 +1,133 @@
+// LikeC4 Views Definition
+// Defines different views/diagrams of the architecture
+
+views {
+  // System Context View - highest level overview
+  // Shows the system and its external actors/systems
+  view index {
+    title 'System Context'
+    description 'High-level overview of the E-Commerce Platform'
+
+    include customer
+    include admin
+    include ecommerce
+    include paymentGateway
+    include emailService
+  }
+
+  // Container View - shows internal structure of the system
+  view containers of ecommerce {
+    title 'Container Diagram'
+    description 'Internal structure of the E-Commerce Platform'
+
+    include *
+    include customer
+    include admin
+    include paymentGateway
+    include emailService
+
+    exclude api.*
+  }
+
+  // Component View - detailed view of the API
+  view components of ecommerce.api {
+    title 'API Components'
+    description 'Internal components of the API Gateway'
+
+    include *
+    include ecommerce.webapp
+    include ecommerce.adminPortal
+    include ecommerce.database
+    include ecommerce.cache
+    include paymentGateway
+    include emailService
+  }
+
+  // Focused view on order processing
+  view orderFlow {
+    title 'Order Processing Flow'
+    description 'How orders are processed through the system'
+
+    include customer
+    include ecommerce.webapp
+    include ecommerce.api
+    include ecommerce.api.orderService
+    include ecommerce.api.paymentService
+    include paymentGateway
+    include emailService
+    include ecommerce.database
+  }
+
+  // Dynamic View - Checkout Process as Sequence Diagram
+  dynamic view checkoutSequence {
+    title 'Checkout Process'
+    description 'Step-by-step sequence of a customer completing a purchase'
+
+    // Step 1: Customer initiates checkout
+    customer -> ecommerce.webapp 'clicks checkout button'
+
+    // Step 2: Web app sends order to API
+    ecommerce.webapp -> ecommerce.api.orderService 'POST /api/orders' {
+      notes '
+        **Request payload**:
+        - Cart items
+        - Shipping address
+        - Customer ID
+      '
+    }
+
+    // Step 3: Order service validates and creates order
+    ecommerce.api.orderService -> ecommerce.database 'INSERT order record'
+
+    // Step 4: Order service initiates payment
+    ecommerce.api.orderService -> ecommerce.api.paymentService 'initiate payment' {
+      notes '
+        Passes order ID and payment details
+      '
+    }
+
+    // Step 5: Payment service calls external gateway
+    ecommerce.api.paymentService -> paymentGateway 'process payment' {
+      notes '
+        **Stripe API call**:
+        - Creates payment intent
+        - Charges customer card
+      '
+    }
+
+    // Step 6: Payment gateway responds
+    ecommerce.api.paymentService <- paymentGateway 'payment confirmed'
+
+    // Step 7: Payment service updates order service
+    ecommerce.api.orderService <- ecommerce.api.paymentService 'payment successful'
+
+    // Step 8: Order service updates database
+    ecommerce.api.orderService -> ecommerce.database 'UPDATE order status = paid'
+
+    // Step 9: Send confirmation email
+    ecommerce.api.orderService -> emailService 'send order confirmation' {
+      notes '
+        Email contains:
+        - Order summary
+        - Tracking info
+        - Receipt
+      '
+    }
+
+    // Step 10: Return success to web app
+    ecommerce.webapp <- ecommerce.api.orderService 'order confirmed'
+
+    // Step 11: Show confirmation to customer
+    customer <- ecommerce.webapp 'display order confirmation'
+
+    // Define actor order for sequence diagram
+    include
+      customer,
+      ecommerce.webapp,
+      ecommerce.api.orderService,
+      ecommerce.api.paymentService,
+      paymentGateway,
+      ecommerce.database,
+      emailService
+  }
+}

@@ -1,0 +1,26 @@
+---
+title: Checkout Sequence
+description: Step-by-step sequence of a customer completing a purchase
+---
+
+import LikeC4View from '../../../components/LikeC4View.astro'
+
+This dynamic view shows the detailed step-by-step sequence of a customer completing a purchase as a **sequence diagram**.
+
+<LikeC4View viewId="checkoutSequence" displayVariant="sequence" />
+
+## Sequence Steps
+
+| Step | From | To | Action |
+|------|------|-----|--------|
+| 1 | Customer | Web App | Clicks checkout button |
+| 2 | Web App | Order Service | POST /api/orders |
+| 3 | Order Service | Database | Create order record |
+| 4 | Order Service | Payment Service | Initiate payment |
+| 5 | Payment Service | Stripe | Process payment |
+| 6 | Stripe | Payment Service | Payment confirmed |
+| 7 | Payment Service | Order Service | Payment successful |
+| 8 | Order Service | Database | Update order status |
+| 9 | Order Service | Email Service | Send confirmation |
+| 10 | Order Service | Web App | Order confirmed |
+| 11 | Web App | Customer | Display confirmation |

@@ -1,0 +1,20 @@
+---
+title: System Context
+description: High-level view of the E-Commerce Platform and its external dependencies
+---
+
+import LikeC4View from '../../../components/LikeC4View.astro'
+
+The System Context diagram shows the big picture - how our E-Commerce Platform fits into the world around it, including the users who use it and the external systems it integrates with.
+
+<LikeC4View viewId="index" />
+
+## Key Actors
+
+- **Customer**: End users who browse products and make purchases
+- **Administrator**: Internal staff who manage products, orders, and the platform
+
+## External Dependencies
+
+- **Payment Gateway**: Stripe API for secure payment processing
+- **Email Service**: SendGrid for transactional emails (order confirmations, etc.)
