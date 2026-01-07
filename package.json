@@ -1,5 +1,5 @@
 {
-  "name": "c4-k-astro",
+  "name": "c4-astro",
   "type": "module",
   "version": "0.1.0",
   "description": "Architecture documentation with LikeC4 diagrams and Astro Starlight",
