@@ -1,0 +1,384 @@
+---
+title: LikeC4View Properties Test
+description: Test page demonstrating all available LikeC4View component properties
+---
+
+import LikeC4View from '../../../components/LikeC4View.astro'
+
+This page demonstrates all available properties of the `LikeC4View` component.
+
+## Default Configuration
+
+The simplest usage with just `viewId`:
+
+```astro
+<LikeC4View viewId="index" />
+```
+
+<LikeC4View viewId="index" />
+
+---
+
+## Background Patterns
+
+### Transparent (default)
+
+```astro
+<LikeC4View viewId="index" background="transparent" />
+```
+
+<LikeC4View viewId="index" background="transparent" />
+
+### Dots
+
+```astro
+<LikeC4View viewId="index" background="dots" />
+```
+
+<LikeC4View viewId="index" background="dots" />
+
+### Lines
+
+```astro
+<LikeC4View viewId="index" background="lines" />
+```
+
+<LikeC4View viewId="index" background="lines" />
+
+### Cross
+
+```astro
+<LikeC4View viewId="index" background="cross" />
+```
+
+<LikeC4View viewId="index" background="cross" />
+
+### Solid
+
+```astro
+<LikeC4View viewId="index" background="solid" />
+```
+
+<LikeC4View viewId="index" background="solid" />
+
+---
+
+## Controls
+
+Show the control panel in the top-left corner:
+
+```astro
+<LikeC4View viewId="index" controls={true} />
+```
+
+<LikeC4View viewId="index" controls={true} />
+
+---
+
+## Pannable & Zoomable
+
+Enable panning and zooming for interactive exploration:
+
+```astro
+<LikeC4View viewId="index" pannable={true} zoomable={true} controls={true} />
+```
+
+<LikeC4View viewId="index" pannable={true} zoomable={true} controls={true} />
+
+---
+
+## Color Schemes
+
+### Light Mode
+
+```astro
+<LikeC4View viewId="index" colorScheme="light" />
+```
+
+<LikeC4View viewId="index" colorScheme="light" />
+
+### Dark Mode
+
+```astro
+<LikeC4View viewId="index" colorScheme="dark" />
+```
+
+<LikeC4View viewId="index" colorScheme="dark" />
+
+---
+
+## Browser Popup
+
+### Enabled (default)
+
+Click on the diagram to open the browser popup:
+
+```astro
+<LikeC4View viewId="index" browser={true} />
+```
+
+<LikeC4View viewId="index" browser={true} />
+
+### Disabled
+
+No popup on click:
+
+```astro
+<LikeC4View viewId="index" browser={false} />
+```
+
+<LikeC4View viewId="index" browser={false} />
+
+### Custom Browser Configuration
+
+```astro
+<LikeC4View 
+  viewId="index" 
+  browser={{
+    background: 'dots',
+    controls: true,
+    showNavigationButtons: true,
+    enableSearch: true,
+    enableFocusMode: true,
+    enableElementDetails: true,
+    enableRelationshipDetails: true,
+    enableNotations: true,
+  }}
+/>
+```
+
+<LikeC4View 
+  viewId="index" 
+  browser={{
+    background: 'dots',
+    controls: true,
+    showNavigationButtons: true,
+    enableSearch: true,
+    enableFocusMode: true,
+    enableElementDetails: true,
+    enableRelationshipDetails: true,
+    enableNotations: true,
+  }}
+/>
+
+---
+
+## Focus Mode
+
+Double-click on a node to highlight incoming/outgoing edges:
+
+```astro
+<LikeC4View viewId="index" enableFocusMode={true} browser={false} />
+```
+
+<LikeC4View viewId="index" enableFocusMode={true} browser={false} />
+
+---
+
+## Element Details
+
+Enable modal with element details on click:
+
+```astro
+<LikeC4View viewId="index" enableElementDetails={true} browser={false} />
+```
+
+<LikeC4View viewId="index" enableElementDetails={true} browser={false} />
+
+---
+
+## Element Tags
+
+Display element tags in the bottom-left corner:
+
+```astro
+<LikeC4View viewId="index" enableElementTags={true} />
+```
+
+<LikeC4View viewId="index" enableElementTags={true} />
+
+---
+
+## Relationship Details
+
+Show dropdown with details on relationship label click:
+
+```astro
+<LikeC4View viewId="index" enableRelationshipDetails={true} browser={false} />
+```
+
+<LikeC4View viewId="index" enableRelationshipDetails={true} browser={false} />
+
+---
+
+## Navigation Buttons
+
+Show back/forward navigation buttons (useful with controls):
+
+```astro
+<LikeC4View viewId="index" controls={true} showNavigationButtons={true} />
+```
+
+<LikeC4View viewId="index" controls={true} showNavigationButtons={true} />
+
+---
+
+## Notations
+
+Display view notations (if available):
+
+```astro
+<LikeC4View viewId="index" enableNotations={true} />
+```
+
+<LikeC4View viewId="index" enableNotations={true} />
+
+---
+
+## Fit View Padding
+
+### Number (pixels)
+
+```astro
+<LikeC4View viewId="index" fitViewPadding={50} />
+```
+
+<LikeC4View viewId="index" fitViewPadding={50} />
+
+### With x/y padding
+
+```astro
+<LikeC4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
+```
+
+<LikeC4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
+
+---
+
+## Keep Aspect Ratio
+
+### Enabled (default)
+
+```astro
+<LikeC4View viewId="index" keepAspectRatio={true} />
+```
+
+<LikeC4View viewId="index" keepAspectRatio={true} />
+
+### Disabled
+
+```astro
+<LikeC4View viewId="index" keepAspectRatio={false} />
+```
+
+<LikeC4View viewId="index" keepAspectRatio={false} />
+
+---
+
+## Reduce Graphics
+
+Performance optimization for large diagrams:
+
+```astro
+<LikeC4View viewId="index" reduceGraphics={true} />
+```
+
+<LikeC4View viewId="index" reduceGraphics={true} />
+
+---
+
+## Dynamic View Variants
+
+### As Diagram (default)
+
+```astro
+<LikeC4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
+```
+
+<LikeC4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
+
+### As Sequence Diagram
+
+```astro
+<LikeC4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
+```
+
+<LikeC4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
+
+---
+
+## Dynamic View Walkthrough
+
+Enable step-by-step walkthrough for dynamic views:
+
+```astro
+<LikeC4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
+```
+
+<LikeC4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
+
+---
+
+## Full Featured Example
+
+All features enabled:
+
+```astro
+<LikeC4View 
+  viewId="index" 
+  pannable={true}
+  zoomable={true}
+  controls={true}
+  background="dots"
+  showNavigationButtons={true}
+  enableNotations={true}
+  enableFocusMode={true}
+  enableElementDetails={true}
+  enableElementTags={true}
+  enableRelationshipDetails={true}
+  enableRelationshipBrowser={true}
+  browser={{
+    background: 'dots',
+    controls: true,
+    showNavigationButtons: true,
+    enableSearch: true,
+    enableFocusMode: true,
+    enableDynamicViewWalkthrough: true,
+    enableElementDetails: true,
+    enableRelationshipBrowser: true,
+    enableRelationshipDetails: true,
+    enableElementTags: true,
+    enableNotations: true,
+    enableCompareWithLatest: true,
+  }}
+/>
+```
+
+<LikeC4View 
+  viewId="index" 
+  pannable={true}
+  zoomable={true}
+  controls={true}
+  background="dots"
+  showNavigationButtons={true}
+  enableNotations={true}
+  enableFocusMode={true}
+  enableElementDetails={true}
+  enableElementTags={true}
+  enableRelationshipDetails={true}
+  enableRelationshipBrowser={true}
+  browser={{
+    background: 'dots',
+    controls: true,
+    showNavigationButtons: true,
+    enableSearch: true,
+    enableFocusMode: true,
+    enableDynamicViewWalkthrough: true,
+    enableElementDetails: true,
+    enableRelationshipBrowser: true,
+    enableRelationshipDetails: true,
+    enableElementTags: true,
+    enableNotations: true,
+    enableCompareWithLatest: true,
+  }}
+/>
