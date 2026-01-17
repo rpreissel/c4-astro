@@ -1,18 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import plantumlEncoder from 'plantuml-encoder';
-
-/**
- * PlantUML Server URL
- * Kann über die Umgebungsvariable PLANTUML_SERVER_URL überschrieben werden.
- * 
- * Beispiele:
- * - Öffentlicher Server: 'https://www.plantuml.com/plantuml/svg'
- * - Lokaler Docker: 'http://localhost:8080/svg'
- * - Eigener Server: 'https://plantuml.example.com/svg'
- */
-const PLANTUML_SERVER_URL = import.meta.env.PLANTUML_SERVER_URL || 'https://www.plantuml.com/plantuml/svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const { readdir, readFile } = await import('node:fs/promises');
@@ -62,9 +50,10 @@ interface Props {
 const { content, slug } = Astro.props;
 const title = slug.split('/').pop() || slug;
 
-// PlantUML-Inhalt encodieren und Diagramm-URL generieren
-const encoded = plantumlEncoder.encode(content);
-const diagramUrl = `${PLANTUML_SERVER_URL}/${encoded}`;
+// Referenz auf die während des Builds generierte SVG-Datei
+// import.meta.env.BASE_URL enthält den base-Pfad (z.B. "/c4-astro/")
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const diagramUrl = `${base}uml-generated/${slug}.svg`;
 ---
 
 <StarlightPage frontmatter={{ title, description: `UML Diagramm: ${title}` }}>

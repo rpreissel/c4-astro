@@ -3,31 +3,72 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import { LikeC4VitePlugin } from 'likec4/vite-plugin';
-import { readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, watch } from 'node:fs';
+import { join, dirname } from 'node:path';
+import plantumlEncoder from 'plantuml-encoder';
+
+const UML_DIR = join(import.meta.dirname, '..', 'uml');
+const OUTPUT_DIR = join(import.meta.dirname, 'public', 'uml-generated');
+const SERVER_URL = process.env.PLANTUML_SERVER_URL || 'https://www.plantuml.com/plantuml/svg';
 
 /**
- * Vite-Plugin das bei Änderungen im uml-Ordner den Server neu startet
+ * Generiert eine SVG-Datei aus einer .puml-Datei
+ * @param {string} pumlPath - Absoluter Pfad zur .puml-Datei
+ * @param {string} relativePath - Relativer Pfad (z.B. "ordnerA/file2.puml")
+ */
+async function generateSvg(pumlPath, relativePath) {
+  const content = readFileSync(pumlPath, 'utf-8');
+  const encoded = plantumlEncoder.encode(content);
+  const url = `${SERVER_URL}/${encoded}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${relativePath}: ${response.status}`);
+  }
+
+  const svg = await response.text();
+  const outputPath = join(OUTPUT_DIR, relativePath.replace(/\.puml$/, '.svg'));
+
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, svg);
+
+  return outputPath;
+}
+
+/**
+ * Vite-Plugin das bei Änderungen im uml-Ordner SVGs regeneriert und Browser-Reload auslöst
  * @returns {import('vite').Plugin}
  */
 function umlWatchPlugin() {
   return {
     name: 'uml-watch',
     configureServer(server) {
-      // Überwache den uml-Ordner für neue/gelöschte/geänderte Dateien
-      server.watcher.add('../uml/**/*.puml');
+      // Verwende Node.js fs.watch direkt (funktioniert außerhalb des Projekt-Roots)
+      console.log(`[uml-watch] Überwache: ${UML_DIR}`);
       
-      /** @param {string} path @param {string} action */
-      const handlePumlChange = (path, action) => {
-        if (path.endsWith('.puml')) {
-          console.log(`[uml-watch] Datei ${action}: ${path}`);
-          server.restart();
+      const watcher = watch(UML_DIR, { recursive: true }, async (eventType, filename) => {
+        if (!filename?.endsWith('.puml')) return;
+        
+        console.log(`[uml-watch] Datei geändert: ${filename}`);
+        
+        const fullPath = join(UML_DIR, filename);
+        
+        try {
+          // SVG regenerieren
+          await generateSvg(fullPath, filename);
+          console.log(`[uml-watch] SVG generiert: ${filename.replace(/\.puml$/, '.svg')}`);
+          
+          // Browser-Reload auslösen
+          server.ws.send({ type: 'full-reload' });
+        } catch (err) {
+          console.error(`[uml-watch] Fehler: ${err.message}`);
         }
-      };
-      
-      server.watcher.on('add', (path) => handlePumlChange(path, 'hinzugefügt'));
-      server.watcher.on('unlink', (path) => handlePumlChange(path, 'gelöscht'));
-      server.watcher.on('change', (path) => handlePumlChange(path, 'geändert'));
+      });
+
+      // Cleanup bei Server-Stop
+      server.httpServer?.on('close', () => {
+        watcher.close();
+      });
     },
   };
 }

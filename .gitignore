@@ -4,6 +4,9 @@ astro_starlight/dist/
 # generated types
 astro_starlight/.astro/
 
+# generated PlantUML diagrams
+astro_starlight/public/uml-generated/
+
 # dependencies
 astro_starlight/node_modules/
 
