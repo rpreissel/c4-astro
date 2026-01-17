@@ -1,0 +1,14 @@
+/* Custom Starlight Styles */
+
+/* Sidebar: Lange Texte ohne Umbruch, gesamte Sidebar horizontal scrollbar */
+.sidebar-content {
+  overflow-x: auto;
+}
+
+/* Verhindere Text-Ellipse und Umbruch in Sidebar-Einträgen */
+.sidebar-content a,
+.sidebar-content summary {
+  white-space: nowrap;
+  text-overflow: unset;
+  overflow: visible;
+}

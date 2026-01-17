@@ -137,6 +137,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Architecture Docs',
+			customCss: ['./src/styles/custom.css'],
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/rpreissel/c4-astro' },
 			],
