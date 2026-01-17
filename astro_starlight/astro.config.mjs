@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import { LikeC4VitePlugin } from 'likec4/vite-plugin';
-import { readdirSync, watch } from 'node:fs';
+import { watch } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { generateSvg, findPumlFiles, getUmlDir, getOutputDir } from './src/lib/plantuml.mjs';
@@ -85,49 +85,6 @@ function umlPlugin() {
   };
 }
 
-/**
- * Generiert Sidebar-Einträge aus einem Verzeichnis mit .puml-Dateien
- * @param {string} dir - Verzeichnis zum Scannen
- * @param {string} [baseDir] - Basis-Verzeichnis für relative Pfade
- * @param {string} [urlBase] - Basis-URL für Links
- */
-function generateUmlSidebar(dir, baseDir = dir, urlBase = '/uml') {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  /** @type {any[]} */
-  const items = [];
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    
-    if (entry.isDirectory()) {
-      const subItems = generateUmlSidebar(fullPath, baseDir, urlBase);
-      if (subItems.length > 0) {
-        items.push({
-          label: entry.name,
-          items: subItems,
-        });
-      }
-    } else if (entry.name.endsWith('.puml')) {
-      // Normalisiere baseDir für korrekten Replace
-      const normalizedBaseDir = baseDir.replace(/^\.\//, '');
-      const relativePath = fullPath
-        .replace(normalizedBaseDir + '/', '')
-        .replace(/\.puml$/, '');
-      items.push({
-        label: entry.name.replace('.puml', ''),
-        link: `${urlBase}/${relativePath}`,
-      });
-    }
-  }
-  
-  // Alphabetische Sortierung (Ordner und Dateien gemischt)
-  items.sort((a, b) => a.label.localeCompare(b.label));
-  
-  return items;
-}
-
-const umlSidebarItems = generateUmlSidebar('../uml');
-
 // https://astro.build/config
 export default defineConfig({
 	// GitHub Pages configuration
@@ -170,8 +127,7 @@ export default defineConfig({
 				},
 				{
 					label: 'UML',
-					items: umlSidebarItems,
-          collapsed: true,
+					link: '/uml/',
 				},
 			],
 		}),

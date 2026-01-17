@@ -1,0 +1,166 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { findPumlFiles } from '../../lib/plantuml.mjs';
+import { join } from 'node:path';
+
+interface FileNode {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  children: FileNode[];
+}
+
+interface TreeLine {
+  prefix: string;
+  connector: string;
+  name: string;
+  path: string;
+  isDirectory: boolean;
+}
+
+// Lade alle .puml-Dateien
+const umlDir = join(process.cwd(), '..', 'uml');
+const files = await findPumlFiles(umlDir, umlDir);
+
+// Baue hierarchische Baumstruktur
+function buildTree(files: { relativePath: string }[]): FileNode[] {
+  const root: FileNode[] = [];
+  
+  for (const file of files) {
+    const parts = file.relativePath.replace(/\.puml$/, '').split('/');
+    let current = root;
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const isLast = i === parts.length - 1;
+      const path = parts.slice(0, i + 1).join('/');
+      
+      let node = current.find(n => n.name === part);
+      
+      if (!node) {
+        node = {
+          name: part,
+          path: path,
+          isDirectory: !isLast,
+          children: [],
+        };
+        current.push(node);
+      }
+      
+      if (!isLast) {
+        current = node.children;
+      }
+    }
+  }
+  
+  // Sortiere: Ordner zuerst, dann alphabetisch
+  function sortNodes(nodes: FileNode[]): FileNode[] {
+    nodes.sort((a, b) => {
+      if (a.isDirectory !== b.isDirectory) {
+        return a.isDirectory ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
+    nodes.forEach(n => sortNodes(n.children));
+    return nodes;
+  }
+  
+  return sortNodes(root);
+}
+
+// Flatten tree zu Zeilen für einfaches Rendering
+function flattenTree(nodes: FileNode[], prefix: string = ''): TreeLine[] {
+  const lines: TreeLine[] = [];
+  
+  nodes.forEach((node, index) => {
+    const isLast = index === nodes.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    
+    lines.push({
+      prefix,
+      connector,
+      name: node.name,
+      path: node.path,
+      isDirectory: node.isDirectory,
+    });
+    
+    if (node.children.length > 0) {
+      const childPrefix = prefix + (isLast ? '    ' : '│   ');
+      lines.push(...flattenTree(node.children, childPrefix));
+    }
+  });
+  
+  return lines;
+}
+
+const tree = buildTree(files);
+const treeLines = flattenTree(tree);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+
+<StarlightPage frontmatter={{ title: 'UML Diagramme', description: 'Übersicht aller PlantUML-Diagramme' }}>
+  <p class="intro">
+    Alle verfügbaren PlantUML-Diagramme in diesem Projekt:
+  </p>
+  
+  <div class="file-tree">
+    <div class="tree-root">uml/</div>
+    {treeLines.map((line) => (
+      <div class="tree-item">
+        <span class="tree-prefix">{line.prefix}{line.connector}</span>
+        {line.isDirectory ? (
+          <span class="tree-folder">{line.name}/</span>
+        ) : (
+          <a href={`${base}uml/${line.path}/`} class="tree-file">{line.name}</a>
+        )}
+      </div>
+    ))}
+  </div>
+</StarlightPage>
+
+<style>
+  .intro {
+    margin-bottom: 1.5rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .file-tree {
+    font-family: var(--__sl-font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    overflow-x: auto;
+  }
+
+  .tree-root {
+    font-weight: 600;
+    color: var(--sl-color-white);
+    margin-bottom: 0.25rem;
+  }
+
+  .tree-item {
+    white-space: nowrap;
+  }
+
+  .tree-prefix {
+    color: var(--sl-color-gray-3);
+    user-select: none;
+  }
+
+  .tree-folder {
+    color: var(--sl-color-text);
+    font-weight: 500;
+  }
+
+  .tree-file {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .tree-file:hover {
+    text-decoration: underline;
+  }
+</style>
