@@ -15,25 +15,25 @@ function umlWatchPlugin() {
     name: 'uml-watch',
     configureServer(server) {
       // Überwache den uml-Ordner für neue/gelöschte/geänderte Dateien
-      server.watcher.add('./uml/**/*.abc');
+      server.watcher.add('./uml/**/*.puml');
       
       /** @param {string} path @param {string} action */
-      const handleAbcChange = (path, action) => {
-        if (path.endsWith('.abc')) {
+      const handlePumlChange = (path, action) => {
+        if (path.endsWith('.puml')) {
           console.log(`[uml-watch] Datei ${action}: ${path}`);
           server.restart();
         }
       };
       
-      server.watcher.on('add', (path) => handleAbcChange(path, 'hinzugefügt'));
-      server.watcher.on('unlink', (path) => handleAbcChange(path, 'gelöscht'));
-      server.watcher.on('change', (path) => handleAbcChange(path, 'geändert'));
+      server.watcher.on('add', (path) => handlePumlChange(path, 'hinzugefügt'));
+      server.watcher.on('unlink', (path) => handlePumlChange(path, 'gelöscht'));
+      server.watcher.on('change', (path) => handlePumlChange(path, 'geändert'));
     },
   };
 }
 
 /**
- * Generiert Sidebar-Einträge aus einem Verzeichnis mit .abc-Dateien
+ * Generiert Sidebar-Einträge aus einem Verzeichnis mit .puml-Dateien
  * @param {string} dir - Verzeichnis zum Scannen
  * @param {string} [baseDir] - Basis-Verzeichnis für relative Pfade
  * @param {string} [urlBase] - Basis-URL für Links
@@ -54,14 +54,14 @@ function generateUmlSidebar(dir, baseDir = dir, urlBase = '/uml') {
           items: subItems,
         });
       }
-    } else if (entry.name.endsWith('.abc')) {
+    } else if (entry.name.endsWith('.puml')) {
       // Normalisiere baseDir für korrekten Replace
       const normalizedBaseDir = baseDir.replace(/^\.\//, '');
       const relativePath = fullPath
         .replace(normalizedBaseDir + '/', '')
-        .replace(/\.abc$/, '');
+        .replace(/\.puml$/, '');
       items.push({
-        label: entry.name.replace('.abc', ''),
+        label: entry.name.replace('.puml', ''),
         link: `${urlBase}/${relativePath}`,
       });
     }

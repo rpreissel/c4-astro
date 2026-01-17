@@ -6,26 +6,26 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const { readdir, readFile } = await import('node:fs/promises');
   const { join } = await import('node:path');
 
-  interface AbcFile {
+  interface PumlFile {
     slug: string;
     content: string;
   }
 
   /**
-   * Rekursiv alle .abc-Dateien im Verzeichnis finden und laden
+   * Rekursiv alle .puml-Dateien im Verzeichnis finden und laden
    */
-  async function getAbcFiles(dir: string, baseDir: string): Promise<AbcFile[]> {
+  async function getPumlFiles(dir: string, baseDir: string): Promise<PumlFile[]> {
     const entries = await readdir(dir, { withFileTypes: true });
-    const files: AbcFile[] = [];
+    const files: PumlFile[] = [];
 
     for (const entry of entries) {
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
-        files.push(...await getAbcFiles(fullPath, baseDir));
-      } else if (entry.name.endsWith('.abc')) {
+        files.push(...await getPumlFiles(fullPath, baseDir));
+      } else if (entry.name.endsWith('.puml')) {
         // Berechne relativen Pfad vom baseDir
         const relativePath = fullPath.substring(baseDir.length + 1);
-        const slug = relativePath.replace(/\.abc$/, '');
+        const slug = relativePath.replace(/\.puml$/, '');
         const content = await readFile(fullPath, 'utf-8');
         files.push({ slug, content });
       }
@@ -34,7 +34,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 
   const umlDir = join(process.cwd(), 'uml');
-  const files = await getAbcFiles(umlDir, umlDir);
+  const files = await getPumlFiles(umlDir, umlDir);
 
   return files.map(file => ({
     params: { slug: file.slug },
