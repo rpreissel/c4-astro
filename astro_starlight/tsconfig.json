@@ -1,6 +1,6 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
+  "include": [".astro/types.d.ts", "**/*", "../likec4/**/*"],
   "exclude": ["dist"],
   "compilerOptions": {
     "types": ["likec4/vite-plugin-modules"]

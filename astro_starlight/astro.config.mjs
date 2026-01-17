@@ -15,7 +15,7 @@ function umlWatchPlugin() {
     name: 'uml-watch',
     configureServer(server) {
       // Überwache den uml-Ordner für neue/gelöschte/geänderte Dateien
-      server.watcher.add('./uml/**/*.puml');
+      server.watcher.add('../uml/**/*.puml');
       
       /** @param {string} path @param {string} action */
       const handlePumlChange = (path, action) => {
@@ -73,7 +73,7 @@ function generateUmlSidebar(dir, baseDir = dir, urlBase = '/uml') {
   return items;
 }
 
-const umlSidebarItems = generateUmlSidebar('./uml');
+const umlSidebarItems = generateUmlSidebar('../uml');
 
 // https://astro.build/config
 export default defineConfig({
@@ -126,7 +126,7 @@ export default defineConfig({
 	vite: {
 		plugins: [
 			LikeC4VitePlugin({
-				workspace: './src/likec4',
+				workspace: '../likec4',
 			}),
 			umlWatchPlugin(),
 		],

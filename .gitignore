@@ -1,17 +1,17 @@
 # build output
-dist/
+astro_starlight/dist/
+
 # generated types
-.astro/
+astro_starlight/.astro/
 
 # dependencies
-node_modules/
+astro_starlight/node_modules/
 
 # logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-
 
 # environment variables
 .env

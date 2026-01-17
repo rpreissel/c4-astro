@@ -1,49 +1,59 @@
-# Starlight Starter Kit: Basics
+# Architecture Documentation with LikeC4
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-```
-npm create astro@latest -- --template starlight
-```
+Documentation site with interactive C4 architecture diagrams and PlantUML support.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+## Project Structure
 
 ```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+/
+├── uml/                    # PlantUML diagrams
+├── likec4/                 # LikeC4 C4 model definitions
+│   ├── ecommerce/          # E-Commerce project
+│   └── projekt-b/          # Projekt B (CRM)
+└── astro_starlight/        # Astro Starlight documentation site
+    ├── src/
+    │   ├── content/docs/   # MDX documentation pages
+    │   ├── components/     # Astro/React components
+    │   └── pages/          # Dynamic pages (UML viewer)
+    ├── public/             # Static assets
+    ├── astro.config.mjs    # Astro configuration
+    ├── package.json
+    └── tsconfig.json
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+## Commands
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+All commands are run from the `astro_starlight/` directory:
 
-Static assets, like favicons, can be placed in the `public/` directory.
+```bash
+cd astro_starlight
 
-## 🧞 Commands
+# Install dependencies
+npm install
 
-All commands are run from the root of the project, from a terminal:
+# Start development server (default: localhost:4321)
+npm run dev
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+# Build for production
+npm run build
 
-## 👀 Want to learn more?
+# Preview production build locally
+npm run preview
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+# Run Astro CLI commands
+npm run astro -- --help
+```
+
+## Deployment
+
+Automatic deployment to GitHub Pages on push to `main` branch.
+
+Site URL: https://rpreissel.github.io/c4-astro/
+
+## Learn More
+
+- [Starlight Documentation](https://starlight.astro.build/)
+- [Astro Documentation](https://docs.astro.build)
+- [LikeC4 Documentation](https://likec4.dev/)
