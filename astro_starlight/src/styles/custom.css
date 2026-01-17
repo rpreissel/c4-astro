@@ -1,6 +1,16 @@
 /* Custom Starlight Styles */
 
-/* Sidebar: Lange Texte ohne Umbruch, gesamte Sidebar horizontal scrollbar */
+/* Sidebar: Resizable - Nutzer kann Breite mit Maus ziehen */
+#starlight__sidebar {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 12rem;
+  max-width: 40rem;
+  /* Visueller Hinweis für Resize-Bereich */
+  border-right: 2px solid var(--sl-color-hairline-light);
+}
+
+/* Sidebar-Content: Horizontales Scrollen für lange Texte */
 .sidebar-content {
   overflow-x: auto;
 }
