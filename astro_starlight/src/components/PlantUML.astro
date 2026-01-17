@@ -1,0 +1,155 @@
+---
+/**
+ * PlantUML Diagram Component
+ * 
+ * Displays a PlantUML diagram from the /uml directory in MDX documentation pages.
+ * The diagram must exist as a .puml file in the uml/ directory.
+ * 
+ * @example
+ * ```mdx
+ * import PlantUML from '../../../components/PlantUML.astro'
+ * 
+ * <PlantUML file="file1" />
+ * <PlantUML file="ordnerA/file2" title="Komponenten-Detail" maxWidth="600px" />
+ * ```
+ */
+
+interface Props {
+  /** 
+   * Dateiname ohne .puml-Endung, relativ zu /uml/ 
+   * z.B. "file1" oder "ordnerA/file2"
+   */
+  file: string
+
+  /** Optionaler Titel über dem Diagramm */
+  title?: string
+
+  /** 
+   * Maximale Breite des Diagramms
+   * @default "100%"
+   */
+  maxWidth?: string
+
+  /** 
+   * Maximale Höhe des Diagramms
+   * @default "auto"
+   */
+  maxHeight?: string
+
+  /** 
+   * Alternativer Text für das Bild
+   * @default "PlantUML Diagramm: {file}"
+   */
+  alt?: string
+}
+
+const {
+  file,
+  title,
+  maxWidth = '100%',
+  maxHeight = 'auto',
+  alt,
+} = Astro.props
+
+// Konstruiere den Pfad zur generierten SVG-Datei
+const base = import.meta.env.BASE_URL.endsWith('/') 
+  ? import.meta.env.BASE_URL 
+  : `${import.meta.env.BASE_URL}/`
+const diagramUrl = `${base}uml-generated/${file}.svg`
+
+// Link zur UML-Detailseite
+const detailPageUrl = `${base}uml/${file}/`
+
+// Standard-Alt-Text basierend auf Dateiname
+const altText = alt || `PlantUML Diagramm: ${file.split('/').pop() || file}`
+---
+
+<figure class="plantuml-figure">
+  {title && <figcaption class="plantuml-title">{title}</figcaption>}
+  <div class="plantuml-container">
+    <a href={detailPageUrl} class="plantuml-link" title="Diagramm-Details anzeigen">
+      <img 
+        src={diagramUrl} 
+        alt={altText}
+        class="plantuml-img"
+        style={`max-width: ${maxWidth}; max-height: ${maxHeight};`}
+        loading="lazy"
+      />
+    </a>
+    <a href={detailPageUrl} class="plantuml-detail-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+      </svg>
+      Details
+    </a>
+  </div>
+</figure>
+
+<style>
+  .plantuml-figure {
+    margin: 1.5rem 0;
+    padding: 0;
+  }
+
+  .plantuml-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--sl-color-text);
+  }
+
+  .plantuml-container {
+    position: relative;
+    text-align: center;
+    padding: 1rem;
+    background: var(--sl-color-bg-nav);
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    overflow: auto;
+  }
+
+  .plantuml-link {
+    display: inline-block;
+  }
+
+  .plantuml-img {
+    height: auto;
+    display: inline-block;
+    transition: opacity 0.15s ease;
+  }
+
+  .plantuml-link:hover .plantuml-img {
+    opacity: 0.85;
+  }
+
+  .plantuml-detail-link {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.75rem;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: all 0.15s ease;
+  }
+
+  .plantuml-detail-link:hover {
+    opacity: 1;
+    color: var(--sl-color-text);
+    border-color: var(--sl-color-gray-4);
+    text-decoration: none;
+  }
+
+  .plantuml-detail-link svg {
+    flex-shrink: 0;
+  }
+</style>

@@ -1,28 +1,45 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { findPumlFiles } from '../../lib/plantuml.mjs';
+import { findPumlFiles, findDiagramReferences } from '../../lib/plantuml.mjs';
 import { join } from 'node:path';
+
+interface DiagramReference {
+  filePath: string;
+  title: string;
+  slug: string;
+}
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const umlDir = join(process.cwd(), '..', 'uml');
+  const docsDir = join(process.cwd(), 'src', 'content', 'docs');
   const files = await findPumlFiles(umlDir, umlDir, { includeContent: true });
 
-  return files.map(file => ({
-    params: { slug: file.relativePath.replace(/\.puml$/, '') },
-    props: { 
-      content: file.content!, 
-      slug: file.relativePath.replace(/\.puml$/, '') 
-    },
+  // Für jede Datei auch die Referenzen finden
+  const paths = await Promise.all(files.map(async (file) => {
+    const slug = file.relativePath.replace(/\.puml$/, '');
+    const references = await findDiagramReferences(slug, docsDir);
+    
+    return {
+      params: { slug },
+      props: { 
+        content: file.content!, 
+        slug,
+        references,
+      },
+    };
   }));
+
+  return paths;
 };
 
 interface Props {
   content: string;
   slug: string;
+  references: DiagramReference[];
 }
 
-const { content, slug } = Astro.props;
+const { content, slug, references } = Astro.props;
 const title = slug.split('/').pop() || slug;
 
 // Referenz auf die während des Builds generierte SVG-Datei
@@ -39,16 +56,44 @@ const diagramUrl = `${base}uml-generated/${slug}.svg`;
       class="plantuml-img"
       loading="lazy"
     />
+    <button 
+      class="copy-link-btn" 
+      data-image-url={diagramUrl}
+      title="Bild-URL kopieren"
+      aria-label="Bild-URL kopieren"
+    >
+      <svg class="icon-link" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </svg>
+      <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </button>
   </div>
   
   <details class="plantuml-source">
     <summary>PlantUML Quellcode anzeigen</summary>
     <pre><code>{content}</code></pre>
   </details>
+
+  {references.length > 0 && (
+    <section class="plantuml-references">
+      <h2>Verwendet in</h2>
+      <ul>
+        {references.map((ref) => (
+          <li>
+            <a href={`${base}${ref.slug}/`}>{ref.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </StarlightPage>
 
 <style>
   .plantuml-diagram {
+    position: relative;
     text-align: center;
     margin: 1.5rem 0;
     padding: 1rem;
@@ -60,6 +105,55 @@ const diagramUrl = `${base}uml-generated/${slug}.svg`;
   .plantuml-img {
     max-width: 100%;
     height: auto;
+  }
+
+  .copy-link-btn {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    color: var(--sl-color-gray-3);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    opacity: 0.7;
+  }
+
+  .copy-link-btn:hover {
+    opacity: 1;
+    background: var(--sl-color-bg);
+    border-color: var(--sl-color-gray-4);
+    color: var(--sl-color-text);
+  }
+
+  .copy-link-btn:active {
+    transform: scale(0.95);
+  }
+
+  .copy-link-btn .icon-check {
+    display: none;
+  }
+
+  .copy-link-btn.copied {
+    opacity: 1;
+    background: var(--sl-color-green-low);
+    border-color: var(--sl-color-green);
+    color: var(--sl-color-green-high);
+  }
+
+  .copy-link-btn.copied .icon-link {
+    display: none;
+  }
+
+  .copy-link-btn.copied .icon-check {
+    display: block;
   }
 
   .plantuml-source {
@@ -89,4 +183,67 @@ const diagramUrl = `${base}uml-generated/${slug}.svg`;
   .plantuml-source code {
     font-size: 0.875rem;
   }
+
+  .plantuml-references {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .plantuml-references h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--sl-color-text);
+  }
+
+  .plantuml-references ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .plantuml-references li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .plantuml-references li:last-child {
+    border-bottom: none;
+  }
+
+  .plantuml-references a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .plantuml-references a:hover {
+    text-decoration: underline;
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const copyBtn = document.querySelector('.copy-link-btn') as HTMLButtonElement;
+    if (!copyBtn) return;
+
+    copyBtn.addEventListener('click', async () => {
+      const imageUrl = copyBtn.dataset.imageUrl;
+      if (!imageUrl) return;
+      
+      // Vollständige URL zum SVG-Bild
+      const fullUrl = `${window.location.origin}${imageUrl}`;
+      
+      try {
+        await navigator.clipboard.writeText(fullUrl);
+        
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        console.error('Kopieren fehlgeschlagen:', err);
+      }
+    });
+  });
+</script>

@@ -104,3 +104,73 @@ export async function findPumlFiles(dir, baseDir = dir, options = {}) {
 
   return files;
 }
+
+/**
+ * @typedef {Object} DiagramReference
+ * @property {string} filePath - Relativer Pfad zur MDX/MD-Datei
+ * @property {string} title - Titel der Seite (aus Frontmatter)
+ * @property {string} slug - URL-Slug für die Seite
+ */
+
+/**
+ * Findet alle MDX/MD-Dateien, die ein bestimmtes PlantUML-Diagramm referenzieren
+ * @param {string} diagramFile - Dateiname ohne .puml-Endung (z.B. "file1" oder "ordnerA/file2")
+ * @param {string} docsDir - Absoluter Pfad zum docs-Verzeichnis
+ * @returns {Promise<DiagramReference[]>}
+ */
+export async function findDiagramReferences(diagramFile, docsDir) {
+  /** @type {DiagramReference[]} */
+  const references = [];
+  
+  // Regex zum Finden von <PlantUML file="..."/> Verwendungen
+  // Matches: file="file1", file='file1', file={`file1`}, file={"file1"}
+  const filePattern = diagramFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`<PlantUML[^>]*\\sfile=["'\`{]+"?${filePattern}["'\`}]+`, 'g');
+  
+  await scanDocsDir(docsDir, docsDir, references, regex);
+  
+  return references;
+}
+
+/**
+ * Rekursiv docs-Verzeichnis durchsuchen
+ * @param {string} dir 
+ * @param {string} baseDir 
+ * @param {DiagramReference[]} references 
+ * @param {RegExp} regex 
+ */
+async function scanDocsDir(dir, baseDir, references, regex) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    
+    if (entry.isDirectory()) {
+      await scanDocsDir(fullPath, baseDir, references, regex);
+    } else if (entry.name.endsWith('.mdx') || entry.name.endsWith('.md')) {
+      const content = await readFile(fullPath, 'utf-8');
+      
+      if (regex.test(content)) {
+        // Reset regex lastIndex after test
+        regex.lastIndex = 0;
+        
+        // Extrahiere Titel aus Frontmatter
+        const titleMatch = content.match(/^---[\s\S]*?title:\s*['"]?([^'"\n]+)['"]?[\s\S]*?---/);
+        const title = titleMatch ? titleMatch[1].trim() : entry.name.replace(/\.mdx?$/, '');
+        
+        // Berechne den Slug (relativer Pfad ohne Endung)
+        const relativePath = fullPath.slice(baseDir.length + 1);
+        const slug = relativePath
+          .replace(/\.mdx?$/, '')
+          .replace(/\/index$/, '')  // index.mdx -> Verzeichnis-Slug
+          .replace(/\\/g, '/');     // Windows-Pfade normalisieren
+        
+        references.push({
+          filePath: relativePath,
+          title,
+          slug,
+        });
+      }
+    }
+  }
+}
