@@ -1,6 +1,18 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import plantumlEncoder from 'plantuml-encoder';
+
+/**
+ * PlantUML Server URL
+ * Kann über die Umgebungsvariable PLANTUML_SERVER_URL überschrieben werden.
+ * 
+ * Beispiele:
+ * - Öffentlicher Server: 'https://www.plantuml.com/plantuml/svg'
+ * - Lokaler Docker: 'http://localhost:8080/svg'
+ * - Eigener Server: 'https://plantuml.example.com/svg'
+ */
+const PLANTUML_SERVER_URL = import.meta.env.PLANTUML_SERVER_URL || 'https://www.plantuml.com/plantuml/svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const { readdir, readFile } = await import('node:fs/promises');
@@ -49,8 +61,68 @@ interface Props {
 
 const { content, slug } = Astro.props;
 const title = slug.split('/').pop() || slug;
+
+// PlantUML-Inhalt encodieren und Diagramm-URL generieren
+const encoded = plantumlEncoder.encode(content);
+const diagramUrl = `${PLANTUML_SERVER_URL}/${encoded}`;
 ---
 
-<StarlightPage frontmatter={{ title, description: `UML: ${title}` }}>
-  <pre>{content}</pre>
+<StarlightPage frontmatter={{ title, description: `UML Diagramm: ${title}` }}>
+  <div class="plantuml-diagram">
+    <img 
+      src={diagramUrl} 
+      alt={`UML Diagramm: ${title}`} 
+      class="plantuml-img"
+      loading="lazy"
+    />
+  </div>
+  
+  <details class="plantuml-source">
+    <summary>PlantUML Quellcode anzeigen</summary>
+    <pre><code>{content}</code></pre>
+  </details>
 </StarlightPage>
+
+<style>
+  .plantuml-diagram {
+    text-align: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--sl-color-bg-nav);
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .plantuml-img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .plantuml-source {
+    margin-top: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .plantuml-source summary {
+    padding: 0.75rem 1rem;
+    background: var(--sl-color-bg-nav);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .plantuml-source summary:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .plantuml-source pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .plantuml-source code {
+    font-size: 0.875rem;
+  }
+</style>

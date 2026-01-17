@@ -15,6 +15,7 @@
     "@astrojs/starlight": "^0.37.2",
     "astro": "^5.6.1",
     "likec4": "^1.47.0",
+    "plantuml-encoder": "^1.4.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "sharp": "^0.34.2"
