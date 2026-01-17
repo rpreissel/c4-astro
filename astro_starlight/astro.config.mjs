@@ -3,37 +3,12 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import { LikeC4VitePlugin } from 'likec4/vite-plugin';
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, watch } from 'node:fs';
-import { join, dirname } from 'node:path';
-import plantumlEncoder from 'plantuml-encoder';
+import { readdirSync, watch } from 'node:fs';
+import { join } from 'node:path';
+import { generateSvg, getUmlDir, getOutputDir } from './src/lib/plantuml.mjs';
 
-const UML_DIR = join(import.meta.dirname, '..', 'uml');
-const OUTPUT_DIR = join(import.meta.dirname, 'public', 'uml-generated');
-const SERVER_URL = process.env.PLANTUML_SERVER_URL || 'https://www.plantuml.com/plantuml/svg';
-
-/**
- * Generiert eine SVG-Datei aus einer .puml-Datei
- * @param {string} pumlPath - Absoluter Pfad zur .puml-Datei
- * @param {string} relativePath - Relativer Pfad (z.B. "ordnerA/file2.puml")
- */
-async function generateSvg(pumlPath, relativePath) {
-  const content = readFileSync(pumlPath, 'utf-8');
-  const encoded = plantumlEncoder.encode(content);
-  const url = `${SERVER_URL}/${encoded}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${relativePath}: ${response.status}`);
-  }
-
-  const svg = await response.text();
-  const outputPath = join(OUTPUT_DIR, relativePath.replace(/\.puml$/, '.svg'));
-
-  mkdirSync(dirname(outputPath), { recursive: true });
-  writeFileSync(outputPath, svg);
-
-  return outputPath;
-}
+const UML_DIR = getUmlDir(import.meta.dirname, '../uml');
+const OUTPUT_DIR = getOutputDir(import.meta.dirname, './public/uml-generated');
 
 /**
  * Vite-Plugin das bei Änderungen im uml-Ordner SVGs regeneriert und Browser-Reload auslöst
@@ -55,13 +30,14 @@ function umlWatchPlugin() {
         
         try {
           // SVG regenerieren
-          await generateSvg(fullPath, filename);
+          await generateSvg(fullPath, filename, OUTPUT_DIR, { silent: true });
           console.log(`[uml-watch] SVG generiert: ${filename.replace(/\.puml$/, '.svg')}`);
           
           // Browser-Reload auslösen
           server.ws.send({ type: 'full-reload' });
         } catch (err) {
-          console.error(`[uml-watch] Fehler: ${err.message}`);
+          const message = err instanceof Error ? err.message : String(err);
+          console.error(`[uml-watch] Fehler: ${message}`);
         }
       });
 

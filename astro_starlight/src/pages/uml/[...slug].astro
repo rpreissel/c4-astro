@@ -1,44 +1,19 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { findPumlFiles } from '../../lib/plantuml.mjs';
+import { join } from 'node:path';
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { readdir, readFile } = await import('node:fs/promises');
-  const { join } = await import('node:path');
-
-  interface PumlFile {
-    slug: string;
-    content: string;
-  }
-
-  /**
-   * Rekursiv alle .puml-Dateien im Verzeichnis finden und laden
-   */
-  async function getPumlFiles(dir: string, baseDir: string): Promise<PumlFile[]> {
-    const entries = await readdir(dir, { withFileTypes: true });
-    const files: PumlFile[] = [];
-
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        files.push(...await getPumlFiles(fullPath, baseDir));
-      } else if (entry.name.endsWith('.puml')) {
-        // Berechne relativen Pfad vom baseDir
-        const relativePath = fullPath.substring(baseDir.length + 1);
-        const slug = relativePath.replace(/\.puml$/, '');
-        const content = await readFile(fullPath, 'utf-8');
-        files.push({ slug, content });
-      }
-    }
-    return files;
-  }
-
   const umlDir = join(process.cwd(), '..', 'uml');
-  const files = await getPumlFiles(umlDir, umlDir);
+  const files = await findPumlFiles(umlDir, umlDir, { includeContent: true });
 
   return files.map(file => ({
-    params: { slug: file.slug },
-    props: { content: file.content, slug: file.slug },
+    params: { slug: file.relativePath.replace(/\.puml$/, '') },
+    props: { 
+      content: file.content!, 
+      slug: file.relativePath.replace(/\.puml$/, '') 
+    },
   }));
 };
 
