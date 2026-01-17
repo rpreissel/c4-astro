@@ -4,19 +4,55 @@ import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import { LikeC4VitePlugin } from 'likec4/vite-plugin';
 import { readdirSync, watch } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { generateSvg, getUmlDir, getOutputDir } from './src/lib/plantuml.mjs';
+import { generateSvg, findPumlFiles, getUmlDir, getOutputDir } from './src/lib/plantuml.mjs';
 
 const UML_DIR = getUmlDir(import.meta.dirname, '../uml');
 const OUTPUT_DIR = getOutputDir(import.meta.dirname, './public/uml-generated');
 
 /**
- * Vite-Plugin das bei Änderungen im uml-Ordner SVGs regeneriert und Browser-Reload auslöst
+ * Vite-Plugin für PlantUML:
+ * - Build: Generiert alle SVGs vor dem Build (buildStart)
+ * - Dev: Überwacht uml-Ordner und regeneriert SVGs bei Änderungen (configureServer)
  * @returns {import('vite').Plugin}
  */
-function umlWatchPlugin() {
+function umlPlugin() {
+  let svgsGenerated = false;
+  
   return {
-    name: 'uml-watch',
+    name: 'uml-plugin',
+
+    // BUILD: Alle SVGs vor dem Build generieren (nur einmal)
+    async buildStart() {
+      if (svgsGenerated) return;
+      svgsGenerated = true;
+      
+      console.log('[uml-plugin] Generiere SVGs für Build...');
+      
+      const files = await findPumlFiles(UML_DIR);
+      
+      if (files.length === 0) {
+        console.log('[uml-plugin] Keine .puml-Dateien gefunden');
+        return;
+      }
+      
+      await mkdir(OUTPUT_DIR, { recursive: true });
+      
+      const results = await Promise.allSettled(
+        files.map(f => generateSvg(f.fullPath, f.relativePath, OUTPUT_DIR))
+      );
+      
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length > 0) {
+        console.error(`[uml-plugin] ${failed.length} Fehler beim Generieren:`);
+        failed.forEach(r => console.error(`  - ${r.reason.message}`));
+      }
+      
+      console.log(`[uml-plugin] ${results.length - failed.length}/${files.length} SVGs generiert`);
+    },
+
+    // DEV: Datei-Watcher für Hot-Reload
     configureServer(server) {
       // Verwende Node.js fs.watch direkt (funktioniert außerhalb des Projekt-Roots)
       console.log(`[uml-watch] Überwache: ${UML_DIR}`);
@@ -134,6 +170,7 @@ export default defineConfig({
 				{
 					label: 'UML',
 					items: umlSidebarItems,
+          collapsed: true,
 				},
 			],
 		}),
@@ -145,7 +182,7 @@ export default defineConfig({
 			LikeC4VitePlugin({
 				workspace: '../likec4',
 			}),
-			umlWatchPlugin(),
+			umlPlugin(),
 		],
 	},
 });

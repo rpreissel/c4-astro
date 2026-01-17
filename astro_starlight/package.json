@@ -4,10 +4,9 @@
   "version": "0.1.0",
   "description": "Architecture documentation with LikeC4 diagrams and Astro Starlight",
   "scripts": {
-    "generate-uml": "node scripts/generate-uml.mjs",
-    "dev": "npm run generate-uml && astro dev",
+    "dev": "astro dev",
     "start": "astro dev",
-    "build": "node scripts/generate-uml.mjs && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
