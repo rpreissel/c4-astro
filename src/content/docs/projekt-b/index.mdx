@@ -1,0 +1,87 @@
+---
+title: Projekt B - CRM System
+description: Architecture documentation for the CRM System (Projekt B)
+---
+
+import LikeC4View from '../../../components/LikeC4ViewProjektB.astro'
+
+This page demonstrates the **Projekt B** C4 model - a simple CRM (Customer Relationship Management) System.
+
+## System Context
+
+High-level overview of the CRM System showing the main actors and the system itself.
+
+<LikeC4View viewId="index" />
+
+### Actors
+
+| Actor | Description |
+|-------|-------------|
+| **Sales Representative** | Internal sales team member who uses the CRM daily |
+| **Sales Manager** | Manages the sales team and reviews reports |
+
+---
+
+## Container View
+
+Internal structure of the CRM System showing the main containers.
+
+<LikeC4View viewId="containers" />
+
+### Containers
+
+| Container | Technology | Description |
+|-----------|------------|-------------|
+| **CRM Web App** | Vue.js, TypeScript | Web-based CRM interface |
+| **CRM API** | Python, FastAPI | Backend API for CRM operations |
+| **CRM Database** | MongoDB | Stores all CRM data |
+
+---
+
+## Component View
+
+Detailed view of the CRM API components.
+
+<LikeC4View viewId="components" />
+
+### Components
+
+| Component | Description |
+|-----------|-------------|
+| **Contact Service** | Manages customer contacts |
+| **Deal Service** | Tracks sales deals and pipeline |
+| **Report Service** | Generates sales reports |
+
+---
+
+## Interactive Exploration
+
+Use the interactive view below to explore the CRM architecture. Click on the diagram to open the browser popup.
+
+<LikeC4View 
+  viewId="index" 
+  controls={true}
+  pannable={true}
+  zoomable={true}
+  background="dots"
+  enableFocusMode={true}
+  enableElementDetails={true}
+  browser={{
+    enableSearch: true,
+    enableFocusMode: true,
+    enableElementDetails: true,
+    enableRelationshipDetails: true,
+    showNavigationButtons: true,
+  }}
+/>
+
+---
+
+## Technology Stack
+
+The CRM System uses the following technologies:
+
+- **Frontend**: Vue.js with TypeScript
+- **Backend**: Python with FastAPI
+- **Database**: MongoDB
+- **Architecture Style**: Microservices-oriented with clear separation of concerns

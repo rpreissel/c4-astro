@@ -1,0 +1,35 @@
+// LikeC4 Views Definition for Projekt B
+
+views {
+  // System Context View
+  view index {
+    title 'CRM System Context'
+    description 'Overview of the CRM System'
+
+    include salesRep
+    include manager
+    include crm
+  }
+
+  // Container View
+  view containers of crm {
+    title 'CRM Containers'
+    description 'Internal structure of the CRM System'
+
+    include *
+    include salesRep
+    include manager
+
+    exclude api.*
+  }
+
+  // Component View
+  view components of crm.api {
+    title 'CRM API Components'
+    description 'Components of the CRM API'
+
+    include *
+    include crm.webapp
+    include crm.database
+  }
+}

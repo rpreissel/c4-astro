@@ -1,0 +1,54 @@
+// LikeC4 Model Definition for Projekt B
+// Example: Simple CRM System
+
+model {
+  // Actors
+  salesRep = actor 'Sales Representative' {
+    description 'Internal sales team member'
+  }
+
+  manager = actor 'Sales Manager' {
+    description 'Manages the sales team and reviews reports'
+  }
+
+  // Main System
+  crm = system 'CRM System' {
+    description 'Customer Relationship Management Platform'
+
+    // Containers
+    webapp = container 'CRM Web App' {
+      description 'Web-based CRM interface'
+      technology 'Vue.js, TypeScript'
+    }
+
+    api = container 'CRM API' {
+      description 'Backend API for CRM operations'
+      technology 'Python, FastAPI'
+
+      contactService = component 'Contact Service' {
+        description 'Manages customer contacts'
+      }
+
+      dealService = component 'Deal Service' {
+        description 'Tracks sales deals and pipeline'
+      }
+
+      reportService = component 'Report Service' {
+        description 'Generates sales reports'
+      }
+    }
+
+    database = database 'CRM Database' {
+      description 'Stores all CRM data'
+      technology 'MongoDB'
+    }
+  }
+
+  // Relationships
+  salesRep -> webapp 'Uses daily'
+  manager -> webapp 'Reviews reports'
+  webapp -> api 'Calls API'
+  api.contactService -> database 'Reads/Writes contacts'
+  api.dealService -> database 'Reads/Writes deals'
+  api.reportService -> database 'Queries for reports'
+}

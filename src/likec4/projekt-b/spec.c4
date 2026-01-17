@@ -1,0 +1,42 @@
+// LikeC4 Model Specification for Projekt B
+// Simple example with basic element types
+
+specification {
+  element actor {
+    style {
+      shape person
+      color amber
+    }
+  }
+
+  element system {
+    style {
+      shape rectangle
+      color sky
+    }
+  }
+
+  element container {
+    style {
+      shape rectangle
+      color green
+    }
+  }
+
+  element component {
+    style {
+      shape rectangle
+      color indigo
+    }
+  }
+
+  element database {
+    style {
+      shape storage
+      color slate
+    }
+  }
+
+  relationship async
+  relationship sync
+}
