@@ -48,7 +48,7 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 const diagramUrl = `${base}uml-generated/${slug}.svg`;
 ---
 
-<StarlightPage frontmatter={{ title, description: `UML Diagramm: ${title}` }}>
+<StarlightPage frontmatter={{ title, description: `UML Diagramm: ${title}`, tableOfContents: false }}>
   <div class="plantuml-diagram">
     <img 
       src={diagramUrl} 
@@ -218,6 +218,15 @@ const diagramUrl = `${base}uml-generated/${slug}.svg`;
 
   .plantuml-references a:hover {
     text-decoration: underline;
+  }
+
+  /* Volle Breite nutzen wenn kein Inhaltsverzeichnis vorhanden */
+  :global(.main-pane) {
+    --sl-content-width: 100%;
+  }
+  
+  :global(.right-sidebar-container) {
+    display: none;
   }
 </style>
 

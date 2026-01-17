@@ -1,0 +1,122 @@
+@startuml wide-sequence-test
+title Komplexer E-Commerce Bestellprozess - Breites Sequenzdiagramm
+
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 200
+
+actor "Kunde\n(Web Browser)" as Customer
+participant "Load\nBalancer" as LB
+participant "API\nGateway" as Gateway
+participant "Auth\nService" as Auth
+participant "User\nService" as UserSvc
+participant "Product\nCatalog" as Catalog
+participant "Inventory\nService" as Inventory
+participant "Pricing\nEngine" as Pricing
+participant "Cart\nService" as Cart
+participant "Order\nService" as Order
+participant "Payment\nGateway" as Payment
+participant "Fraud\nDetection" as Fraud
+participant "Shipping\nService" as Shipping
+participant "Notification\nService" as Notify
+participant "Analytics\nPipeline" as Analytics
+database "PostgreSQL\nDatabase" as DB
+queue "Message\nBroker" as MQ
+
+== Authentifizierung ==
+Customer -> LB: HTTPS Request (Login)
+LB -> Gateway: Route Request
+Gateway -> Auth: Authenticate User (JWT Token Request)
+Auth -> UserSvc: Validate Credentials
+UserSvc -> DB: SELECT user FROM users WHERE email = ?
+DB --> UserSvc: User Record
+UserSvc --> Auth: User Valid + Profile
+Auth --> Gateway: JWT Token + Refresh Token
+Gateway --> LB: Authentication Response
+LB --> Customer: Set-Cookie: session_token
+
+== Produktsuche & Warenkorb ==
+Customer -> LB: GET /api/products?category=electronics&page=1&limit=50
+LB -> Gateway: Forward Request
+Gateway -> Auth: Validate JWT Token
+Auth --> Gateway: Token Valid (user_id: 12345)
+Gateway -> Catalog: Search Products (category, pagination, filters)
+Catalog -> DB: Complex Query with Full-Text Search
+DB --> Catalog: Product Results (50 items)
+Catalog -> Inventory: Batch Check Availability (product_ids[])
+Inventory --> Catalog: Stock Levels Map
+Catalog -> Pricing: Get Dynamic Prices (product_ids[], user_segment)
+Pricing --> Catalog: Price Map with Discounts
+Catalog --> Gateway: Enriched Product List
+Gateway --> LB: JSON Response
+LB --> Customer: Product Catalog Display
+
+Customer -> LB: POST /api/cart/items (product_id: SKU-12345, quantity: 2)
+LB -> Gateway: Forward Request
+Gateway -> Cart: Add Item to Cart
+Cart -> Inventory: Reserve Stock (SKU-12345, qty: 2)
+Inventory -> DB: UPDATE inventory SET reserved = reserved + 2
+DB --> Inventory: Updated
+Inventory --> Cart: Reservation Confirmed (reservation_id: RES-789)
+Cart -> DB: INSERT INTO cart_items (user_id, product_id, quantity, reservation_id)
+DB --> Cart: Inserted
+Cart --> Gateway: Cart Updated (total_items: 2, subtotal: €599.98)
+Gateway --> LB: Success Response
+LB --> Customer: Cart Badge Updated
+
+== Checkout-Prozess ==
+Customer -> LB: POST /api/checkout/initiate
+LB -> Gateway: Forward Request
+Gateway -> Order: Create Pending Order
+Order -> Cart: Get Cart Contents
+Cart -> DB: SELECT * FROM cart_items WHERE user_id = 12345
+DB --> Cart: Cart Items
+Cart --> Order: Cart Data
+Order -> Pricing: Calculate Final Price (items, shipping_address, promo_code)
+Pricing -> DB: Validate Promo Code
+DB --> Pricing: Promo Valid (20% off)
+Pricing --> Order: Final Price Breakdown (subtotal, discount, tax, shipping, total)
+Order -> DB: INSERT INTO orders (status: 'pending', ...)
+DB --> Order: Order Created (order_id: ORD-2024-00123)
+Order --> Gateway: Checkout Session (order_id, payment_intent_id)
+Gateway --> LB: Checkout Response
+LB --> Customer: Redirect to Payment Page
+
+Customer -> LB: POST /api/payment/process (order_id, card_token, billing_address)
+LB -> Gateway: Forward Request
+Gateway -> Payment: Process Payment
+Payment -> Fraud: Analyze Transaction (amount, user_history, device_fingerprint, ip_geolocation)
+Fraud -> DB: Query User Transaction History
+DB --> Fraud: Historical Data
+Fraud -> Analytics: Log Risk Assessment
+Fraud --> Payment: Risk Score: LOW (proceed)
+Payment -> Payment: Stripe/PayPal API Call
+Payment --> Gateway: Payment Successful (transaction_id: TXN-ABC123)
+Gateway -> Order: Update Order Status
+Order -> DB: UPDATE orders SET status = 'paid', transaction_id = 'TXN-ABC123'
+DB --> Order: Updated
+Order -> MQ: Publish OrderPaidEvent
+Order --> Gateway: Order Confirmed
+Gateway --> LB: Payment Success
+LB --> Customer: Order Confirmation Page
+
+== Fulfillment (Async) ==
+MQ -> Inventory: Consume OrderPaidEvent
+Inventory -> DB: UPDATE inventory SET reserved = reserved - 2, available = available - 2
+DB --> Inventory: Stock Deducted
+
+MQ -> Shipping: Consume OrderPaidEvent
+Shipping -> Shipping: Calculate Optimal Carrier
+Shipping -> DB: INSERT INTO shipments (order_id, carrier, tracking_number)
+DB --> Shipping: Shipment Created
+Shipping -> MQ: Publish ShipmentCreatedEvent
+
+MQ -> Notify: Consume ShipmentCreatedEvent
+Notify -> Customer: Email: "Your order has shipped!" (tracking_link)
+Notify -> Customer: SMS: "Order ORD-2024-00123 shipped via DHL"
+Notify -> Customer: Push Notification (Mobile App)
+
+MQ -> Analytics: Consume All Events
+Analytics -> Analytics: Update Real-time Dashboards
+Analytics -> DB: Store Event in Data Warehouse
+
+@enduml
