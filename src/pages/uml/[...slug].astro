@@ -1,0 +1,56 @@
+---
+import type { GetStaticPaths } from 'astro';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+
+  interface AbcFile {
+    slug: string;
+    content: string;
+  }
+
+  /**
+   * Rekursiv alle .abc-Dateien im Verzeichnis finden und laden
+   */
+  async function getAbcFiles(dir: string, baseDir: string): Promise<AbcFile[]> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const files: AbcFile[] = [];
+
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...await getAbcFiles(fullPath, baseDir));
+      } else if (entry.name.endsWith('.abc')) {
+        // Berechne relativen Pfad vom baseDir
+        const relativePath = fullPath.substring(baseDir.length + 1);
+        const slug = relativePath.replace(/\.abc$/, '');
+        const content = await readFile(fullPath, 'utf-8');
+        files.push({ slug, content });
+      }
+    }
+    return files;
+  }
+
+  const umlDir = join(process.cwd(), 'uml');
+  const files = await getAbcFiles(umlDir, umlDir);
+
+  return files.map(file => ({
+    params: { slug: file.slug },
+    props: { content: file.content, slug: file.slug },
+  }));
+};
+
+interface Props {
+  content: string;
+  slug: string;
+}
+
+const { content, slug } = Astro.props;
+const title = slug.split('/').pop() || slug;
+---
+
+<StarlightPage frontmatter={{ title, description: `UML: ${title}` }}>
+  <pre>{content}</pre>
+</StarlightPage>

@@ -3,6 +3,77 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import { LikeC4VitePlugin } from 'likec4/vite-plugin';
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
+/**
+ * Vite-Plugin das bei Änderungen im uml-Ordner den Server neu startet
+ * @returns {import('vite').Plugin}
+ */
+function umlWatchPlugin() {
+  return {
+    name: 'uml-watch',
+    configureServer(server) {
+      // Überwache den uml-Ordner für neue/gelöschte/geänderte Dateien
+      server.watcher.add('./uml/**/*.abc');
+      
+      /** @param {string} path @param {string} action */
+      const handleAbcChange = (path, action) => {
+        if (path.endsWith('.abc')) {
+          console.log(`[uml-watch] Datei ${action}: ${path}`);
+          server.restart();
+        }
+      };
+      
+      server.watcher.on('add', (path) => handleAbcChange(path, 'hinzugefügt'));
+      server.watcher.on('unlink', (path) => handleAbcChange(path, 'gelöscht'));
+      server.watcher.on('change', (path) => handleAbcChange(path, 'geändert'));
+    },
+  };
+}
+
+/**
+ * Generiert Sidebar-Einträge aus einem Verzeichnis mit .abc-Dateien
+ * @param {string} dir - Verzeichnis zum Scannen
+ * @param {string} [baseDir] - Basis-Verzeichnis für relative Pfade
+ * @param {string} [urlBase] - Basis-URL für Links
+ */
+function generateUmlSidebar(dir, baseDir = dir, urlBase = '/uml') {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  /** @type {any[]} */
+  const items = [];
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    
+    if (entry.isDirectory()) {
+      const subItems = generateUmlSidebar(fullPath, baseDir, urlBase);
+      if (subItems.length > 0) {
+        items.push({
+          label: entry.name,
+          items: subItems,
+        });
+      }
+    } else if (entry.name.endsWith('.abc')) {
+      // Normalisiere baseDir für korrekten Replace
+      const normalizedBaseDir = baseDir.replace(/^\.\//, '');
+      const relativePath = fullPath
+        .replace(normalizedBaseDir + '/', '')
+        .replace(/\.abc$/, '');
+      items.push({
+        label: entry.name.replace('.abc', ''),
+        link: `${urlBase}/${relativePath}`,
+      });
+    }
+  }
+  
+  // Alphabetische Sortierung (Ordner und Dateien gemischt)
+  items.sort((a, b) => a.label.localeCompare(b.label));
+  
+  return items;
+}
+
+const umlSidebarItems = generateUmlSidebar('./uml');
 
 // https://astro.build/config
 export default defineConfig({
@@ -43,6 +114,10 @@ export default defineConfig({
 					label: 'Reference',
 					autogenerate: { directory: 'reference' },
 				},
+				{
+					label: 'UML',
+					items: umlSidebarItems,
+				},
 			],
 		}),
 		react(),
@@ -53,6 +128,7 @@ export default defineConfig({
 			LikeC4VitePlugin({
 				workspace: './src/likec4',
 			}),
+			umlWatchPlugin(),
 		],
 	},
 });
