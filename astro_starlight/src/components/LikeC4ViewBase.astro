@@ -1,0 +1,21 @@
+---
+/**
+ * Base component for LikeC4 views.
+ * Project-specific wrappers should import this and use the slot for the React component.
+ */
+---
+
+<div class="likec4-container">
+  <slot />
+</div>
+
+<style>
+  .likec4-container {
+    width: 100%;
+    min-height: 400px;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+</style>
