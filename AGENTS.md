@@ -124,7 +124,7 @@ title: Page Title
 description: Page description for SEO
 ---
 
-import Component from '../../../components/Component.astro'
+import Component from '@components/Component.astro'
 
 Content here...
 
@@ -180,7 +180,9 @@ views {
 
 ### Imports
 
-- Use relative paths for local imports: `../../../components/`
+- Use path aliases for local imports:
+  - `@components/` for components: `import Component from '@components/Component.astro'`
+  - `@/` for src root: `import util from '@/lib/util.ts'`
 - Use virtual modules for LikeC4: `likec4:react/project-name`
 - Group imports: external packages first, then local modules
 
