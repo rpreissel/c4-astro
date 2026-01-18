@@ -100,9 +100,8 @@ export default defineConfig({
 			],
 			sidebar: [
 				{
-					label: 'Guides',
+					label: 'Einstieg',
 					items: [
-						{ label: 'Übersicht', slug: 'guides/howto' },
 						{ label: 'Dokumentationsseite erstellen', slug: 'guides/dokumentationsseite-erstellen' },
 						{ label: 'Sidebar anpassen', slug: 'guides/sidebar-anpassen' },
 						{ label: 'UML-Diagramm erstellen', slug: 'guides/uml-diagramm-erstellen' },
