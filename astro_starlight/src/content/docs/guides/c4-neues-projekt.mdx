@@ -1,0 +1,209 @@
+---
+title: Neues C4-Projekt anlegen
+description: So erstellst du ein komplett neues, unabhängiges C4-Modell-Projekt
+---
+
+Erstelle ein völlig neues, unabhängiges C4-Projekt mit eigener Astro-Komponente. Für Erweiterungen bestehender Projekte siehe [C4-Modell erweitern](./c4-modell-erweitern/).
+
+## Schritt 1: Projektordner erstellen
+
+```bash
+mkdir c4/mein-projekt
+```
+
+## Schritt 2: Konfiguration anlegen
+
+Erstelle `c4/mein-projekt/likec4.config.json`:
+
+```json
+{
+  "$schema": "https://likec4.dev/schemas/config.json",
+  "name": "mein-projekt"
+}
+```
+
+**Wichtig:** Der `name` muss eindeutig sein und wird für den Import verwendet.
+
+## Schritt 3: Spezifikation definieren
+
+Erstelle `c4/mein-projekt/spec.c4`:
+
+```c4
+specification {
+  element actor {
+    style { shape person, color amber }
+  }
+  element system {
+    style { shape rectangle, color blue }
+  }
+  element container {
+    style { shape rectangle, color green }
+  }
+  element component {
+    style { shape rectangle, color indigo }
+  }
+  
+  relationship async
+  relationship sync
+}
+```
+
+**Verfügbare Farben:** `amber`, `blue`, `gray`, `green`, `indigo`, `slate`, `red`, `purple`, `pink`, `cyan`, `orange`
+
+**Verfügbare Shapes:** `rectangle`, `person`, `storage`, `cylinder`, `queue`, `mobile`, `browser`
+
+## Schritt 4: Modell definieren
+
+Erstelle `c4/mein-projekt/model.c4`:
+
+```c4
+model {
+  user = actor 'Benutzer'
+  
+  mySystem = system 'Mein System' {
+    frontend = container 'Frontend' {
+      technology 'React, TypeScript'
+    }
+    
+    backend = container 'Backend API' {
+      technology 'Node.js'
+      
+      authComponent = component 'Auth Service'
+    }
+    
+    database = database 'Datenbank' {
+      technology 'PostgreSQL'
+    }
+  }
+  
+  // Beziehungen
+  user -> mySystem.frontend 'Nutzt'
+  mySystem.frontend -> mySystem.backend 'API Calls' #async
+  mySystem.backend -> mySystem.database 'Liest/Schreibt'
+}
+```
+
+## Schritt 5: Views definieren
+
+Erstelle `c4/mein-projekt/views.c4`:
+
+```c4
+views {
+  view index {
+    title 'System Context'
+    include user, mySystem
+  }
+  
+  view containers of mySystem {
+    title 'Container Diagram'
+    include *, user
+  }
+  
+  dynamic view userLogin {
+    title 'Benutzer-Login'
+    
+    user -> mySystem.frontend 'Login'
+    mySystem.frontend -> mySystem.backend.authComponent 'Authentifizierung'
+    mySystem.frontend <- mySystem.backend.authComponent 'JWT Token'
+    
+    include user, mySystem.frontend, mySystem.backend.authComponent
+  }
+}
+```
+
+## Schritt 6: Astro-Komponente erstellen
+
+Erstelle `astro_starlight/src/components/C4ViewMeinProjekt.astro`:
+
+```astro
+---
+/**
+ * C4 View component for Mein Projekt.
+ */
+import C4ViewBase from './C4ViewBase.astro'
+import { LikeC4View, type LikeC4ViewId } from 'likec4:react/mein-projekt'
+import { extractPropsWithDefaults, type C4ViewProps } from './C4ViewBase.astro'
+
+interface Props extends C4ViewProps<LikeC4ViewId> {}
+
+const p = extractPropsWithDefaults(Astro.props)
+---
+
+<C4ViewBase>
+  <LikeC4View {...p} client:only="react" />
+</C4ViewBase>
+```
+
+**Wichtig:**
+- `likec4:react/mein-projekt` muss dem `name` aus `likec4.config.json` entsprechen
+- Dateiname: `C4View{ProjektName}.astro` (PascalCase)
+
+## Schritt 7: Dokumentationsseite erstellen
+
+Erstelle `astro_starlight/src/content/docs/mein-projekt/overview.mdx`:
+
+```mdx
+---
+title: Mein Projekt - Übersicht
+description: Architekturübersicht von Mein Projekt
+---
+
+import C4ViewMeinProjekt from '@components/C4ViewMeinProjekt.astro'
+
+## System Context
+
+Das Gesamtsystem mit allen Akteuren und externen Systemen:
+
+<C4ViewMeinProjekt viewId="index" />
+
+## Container Diagram
+
+Die interne Struktur zeigt Frontend, Backend und Datenbank:
+
+<C4ViewMeinProjekt viewId="containers" />
+
+## Login-Ablauf
+
+Der Authentifizierungsprozess als Sequenzdiagramm:
+
+<C4ViewMeinProjekt viewId="userLogin" displayVariant="sequence" />
+```
+
+## Schritt 8: Zur Sidebar hinzufügen
+
+Bearbeite `astro_starlight/astro.config.mjs`:
+
+```javascript
+sidebar: [
+  {
+    label: 'Mein Projekt',
+    items: [
+      { label: 'Übersicht', slug: 'mein-projekt/overview' },
+    ],
+  },
+]
+```
+
+## C4View-Komponente: Parameter
+
+| Parameter | Typ | Default | Beschreibung |
+|-----------|-----|---------|--------------|
+| `viewId` | `string` | **required** | ID der View aus `views.c4` |
+| `interactive` | `boolean` | `true` | Zoom, Pan und Navigation |
+| `displayVariant` | `'diagram' \| 'sequence'` | `'diagram'` | Darstellung (für dynamic views) |
+
+## Troubleshooting
+
+**Fehler: "Cannot find module 'likec4:react/mein-projekt'"**
+- Prüfe `name` in `likec4.config.json`
+- Starte Dev-Server neu: `npm run dev`
+
+**View wird nicht angezeigt**
+- Prüfe `viewId` - muss exakt mit View-Namen in `views.c4` übereinstimmen
+- Prüfe Browser-Konsole auf Fehler
+
+## Weiterführende Links
+
+- [Bestehendes C4-Modell erweitern](./c4-modell-erweitern/)
+- [LikeC4 Dokumentation](https://likec4.dev/docs/)
+- [C4-Modell](https://c4model.com/)

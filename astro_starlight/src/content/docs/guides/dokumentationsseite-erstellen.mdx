@@ -1,0 +1,77 @@
+---
+title: Dokumentationsseite erstellen
+description: So erstellst du eine neue MDX-Dokumentationsseite
+---
+
+## Schritt 1: MDX-Datei erstellen
+
+Erstelle eine neue `.mdx`-Datei im Verzeichnis `astro_starlight/src/content/docs/`:
+
+```
+astro_starlight/src/content/docs/
+├── architecture/
+│   └── meine-seite.mdx         # Neue Seite in einem Unterordner
+└── guides/
+    └── weitere-seite.mdx       # Oder in einem anderen Ordner
+```
+
+## Schritt 2: Frontmatter und Inhalt schreiben
+
+Jede MDX-Datei benötigt einen Frontmatter-Block mit `title` und `description`:
+
+```mdx
+---
+title: Meine neue Seite
+description: Beschreibung für SEO und Übersichten
+---
+
+## Überschrift
+
+Hier kommt dein Markdown-Inhalt hin.
+
+Du kannst normales Markdown verwenden:
+- Listen
+- **Fett**
+- *Kursiv*
+- [Links](https://example.com)
+
+Und Code-Blöcke:
+
+\`\`\`javascript
+console.log('Hello World');
+\`\`\`
+```
+
+## Markdown-Funktionen
+
+MDX unterstützt alle Standard-Markdown-Features:
+
+- **Überschriften**: `#`, `##`, `###` etc.
+- **Listen**: Nummeriert (`1.`) oder ungeordnet (`-`)
+- **Code**: Inline mit Backticks oder Blöcke mit drei Backticks
+- **Links**: `[Text](URL)`
+- **Bilder**: `![Alt-Text](bild.png)`
+- **Tabellen**: Markdown-Tabellen-Syntax
+
+## Komponenten importieren
+
+Das Besondere an MDX ist, dass du React/Astro-Komponenten importieren kannst:
+
+```mdx
+---
+title: Seite mit Komponenten
+---
+
+import PlantUML from '@components/PlantUML.astro'
+import C4ViewEcommerce from '@components/C4ViewEcommerce.astro'
+
+<PlantUML file="mein-diagramm" />
+<C4ViewEcommerce viewId="index" />
+```
+
+## Nächste Schritte
+
+Nach dem Erstellen der Seite solltest du:
+
+1. Die Seite zur [Sidebar hinzufügen](./sidebar-anpassen/)
+2. Optional: [UML-Diagramme einbinden](./uml-einbinden/)

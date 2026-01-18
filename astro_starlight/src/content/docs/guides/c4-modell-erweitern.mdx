@@ -1,0 +1,138 @@
+---
+title: C4-Modell erweitern
+description: So erweiterst du ein bestehendes C4-Modell um neue Elemente und Views
+---
+
+Erweitere ein bestehendes C4-Projekt um neue Elemente, Beziehungen und Views. Dieses Projekt nutzt [LikeC4](https://likec4.dev/) für interaktive [C4-Architekturdiagramme](https://c4model.com/).
+
+## Bestehende Projekte
+
+| Projekt | Verzeichnis | Komponente | Beispiel |
+|---------|-------------|------------|----------|
+| E-Commerce | `c4/ecommerce/` | `C4ViewEcommerce.astro` | [System Context](../architecture/system-context/) |
+| Projekt B - CRM | `c4/projekt-b/` | `C4ViewProjektB.astro` | [CRM Overview](../projekt-b/) |
+
+## Schritt 1: Elemente hinzufügen
+
+Öffne `c4/ecommerce/model.c4` und füge neue Elemente hinzu:
+
+```c4
+// model.c4
+model {
+  ecommerce = system 'E-Commerce Platform' {
+    // Neuer Container
+    analytics = container 'Analytics Service' {
+      description 'Sammelt und analysiert Nutzerverhalten'
+      technology 'Python, Pandas'
+    }
+    
+    // Neue Komponente in bestehendem Container
+    api = container 'API Gateway' {
+      notificationService = component 'Notification Service' {
+        description 'Sendet Push-Benachrichtigungen'
+        technology 'Firebase Cloud Messaging'
+      }
+    }
+  }
+  
+  // Neues externes System
+  analyticsProvider = externalSystem 'Google Analytics' {
+    description 'Web-Analytics und Tracking'
+  }
+}
+```
+
+## Schritt 2: Beziehungen definieren
+
+```c4
+// model.c4
+model {
+  // Beziehungen
+  ecommerce.webapp -> ecommerce.analytics 'Sendet Events' #async
+  ecommerce.analytics -> analyticsProvider 'Exportiert Daten' #async
+}
+```
+
+## Schritt 3: Views erstellen
+
+Öffne `c4/ecommerce/views.c4`:
+
+```c4
+// views.c4
+views {
+  // Statische View
+  view analyticsView {
+    title 'Analytics Architecture'
+    
+    include customer
+    include ecommerce.webapp
+    include ecommerce.analytics
+    include analyticsProvider
+  }
+  
+  // Dynamic View (Sequenzdiagramm)
+  dynamic view trackingFlow {
+    title 'Event Tracking Flow'
+    
+    customer -> ecommerce.webapp 'Interaktion'
+    ecommerce.webapp -> ecommerce.analytics 'Sendet Event'
+    ecommerce.analytics -> analyticsProvider 'Exportiert Daten'
+    
+    include
+      customer,
+      ecommerce.webapp,
+      ecommerce.analytics,
+      analyticsProvider
+  }
+}
+```
+
+## Schritt 4: View in MDX anzeigen
+
+Erstelle oder öffne eine MDX-Seite und binde die neuen Views ein:
+
+```mdx
+---
+title: Analytics-Architektur
+description: Übersicht der Analytics-Komponenten
+---
+
+import C4ViewEcommerce from '@components/C4ViewEcommerce.astro'
+
+## Analytics-System
+
+Die Analytics-Architektur zeigt, wie Nutzerverhalten erfasst wird:
+
+<C4ViewEcommerce viewId="analyticsView" />
+
+## Event-Tracking-Ablauf
+
+Der folgende Ablauf zeigt die Event-Verarbeitung als Sequenzdiagramm:
+
+<C4ViewEcommerce viewId="trackingFlow" displayVariant="sequence" />
+
+## Technische Details
+
+Das Analytics-System nutzt Python und Pandas für die Datenverarbeitung
+und exportiert aggregierte Daten an Google Analytics.
+```
+
+## Parameter der C4View-Komponente
+
+| Parameter | Typ | Default | Beschreibung |
+|-----------|-----|---------|--------------|
+| `viewId` | `string` | **required** | ID der View aus `views.c4` |
+| `interactive` | `boolean` | `true` | Zoom, Pan und Navigation |
+| `displayVariant` | `'diagram' \| 'sequence'` | `'diagram'` | Darstellung |
+
+## Tipps
+
+- **Hot Reload**: Änderungen an `.c4`-Dateien werden automatisch erkannt
+- **TypeScript**: View-IDs sind typsicher - ungültige IDs werden markiert
+- **Include/Exclude**: Nutze `include *` oder `exclude element.*` für Filter
+
+## Weiterführende Links
+
+- [Neues C4-Projekt anlegen](./c4-neues-projekt/)
+- [LikeC4 Dokumentation](https://likec4.dev/docs/)
+- [C4-Modell](https://c4model.com/)

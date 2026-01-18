@@ -1,0 +1,114 @@
+---
+title: Sidebar anpassen
+description: So fügst du Seiten zur Sidebar hinzu und strukturierst die Navigation
+---
+
+Die Sidebar-Konfiguration befindet sich in `astro_starlight/astro.config.mjs`.
+
+## Einzelne Seite hinzufügen
+
+```javascript
+sidebar: [
+  {
+    label: 'Meine Kategorie',
+    items: [
+      { label: 'Seitentitel', slug: 'ordner/dateiname' },
+      { label: 'Weitere Seite', slug: 'architecture/meine-seite' },
+    ],
+  },
+]
+```
+
+**Wichtig:** Der `slug` ist der Pfad zur Datei **ohne** `.mdx`-Endung, relativ zu `src/content/docs/`.
+
+## Neue Kategorie hinzufügen
+
+Füge ein neues Objekt im `sidebar`-Array hinzu:
+
+```javascript
+sidebar: [
+  {
+    label: 'Guides',
+    items: [
+      { label: 'How-To Guide', slug: 'guides/howto' },
+    ],
+  },
+  {
+    label: 'Neue Kategorie',  // Neue Kategorie
+    items: [
+      { label: 'Erste Seite', slug: 'neue-kategorie/erste-seite' },
+      { label: 'Zweite Seite', slug: 'neue-kategorie/zweite-seite' },
+    ],
+  },
+]
+```
+
+## Automatische Generierung (autogenerate)
+
+Für Ordner mit vielen Seiten kannst du die automatische Generierung nutzen:
+
+```javascript
+{
+  label: 'Reference',
+  autogenerate: { directory: 'reference' },
+}
+```
+
+Dies erstellt automatisch Sidebar-Einträge für alle `.mdx`-Dateien im Ordner `src/content/docs/reference/`.
+
+## Link zu externer Seite oder Unterseite
+
+Statt `slug` kannst du auch `link` verwenden:
+
+```javascript
+{
+  label: 'UML',
+  link: '/uml/',  // Verlinkung zu /uml/ statt slug
+}
+```
+
+## Vollständiges Beispiel
+
+```javascript
+// astro_starlight/astro.config.mjs
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'Architecture Docs',
+      sidebar: [
+        {
+          label: 'Guides',
+          items: [
+            { label: 'Übersicht', slug: 'guides/howto' },
+            { label: 'UML erstellen', slug: 'guides/uml-diagramm-erstellen' },
+            { label: 'Seite erstellen', slug: 'guides/dokumentationsseite-erstellen' },
+            { label: 'UML einbinden', slug: 'guides/uml-einbinden' },
+            { label: 'Sidebar anpassen', slug: 'guides/sidebar-anpassen' },
+          ],
+        },
+        {
+          label: 'Deployment',
+          items: [
+            { label: 'Übersicht', slug: 'deployment/overview' },
+          ],
+        },
+        {
+          label: 'Reference',
+          autogenerate: { directory: 'reference' },
+        },
+        {
+          label: 'UML',
+          link: '/uml/',
+        },
+      ],
+    }),
+  ],
+});
+```
+
+## Tipps
+
+- **Sortierung**: Die Reihenfolge in der Sidebar entspricht der Reihenfolge im Array
+- **Verschachtelte Gruppen**: Du kannst Gruppen nicht weiter verschachteln (nur eine Ebene)
+- **Icons**: Starlight unterstützt Icons für bestimmte Links (z.B. GitHub, Social Media)
+- **Collapsed Groups**: Gruppen können standardmäßig eingeklappt werden (siehe [Starlight Docs](https://starlight.astro.build/reference/configuration/#sidebar))

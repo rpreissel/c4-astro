@@ -102,7 +102,13 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
-						{ label: 'Getting Started', slug: 'guides/example' },
+						{ label: 'Übersicht', slug: 'guides/howto' },
+						{ label: 'Dokumentationsseite erstellen', slug: 'guides/dokumentationsseite-erstellen' },
+						{ label: 'Sidebar anpassen', slug: 'guides/sidebar-anpassen' },
+						{ label: 'UML-Diagramm erstellen', slug: 'guides/uml-diagramm-erstellen' },
+						{ label: 'UML-Diagramm einbinden', slug: 'guides/uml-einbinden' },
+						{ label: 'C4-Modell erweitern', slug: 'guides/c4-modell-erweitern' },
+						{ label: 'Neues C4-Projekt', slug: 'guides/c4-neues-projekt' },
 					],
 				},
 			{
