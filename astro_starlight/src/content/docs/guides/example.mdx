@@ -15,10 +15,10 @@ Here is an example PlantUML diagram embedded directly in the documentation:
 
 ## Project Structure
 
-The LikeC4 model files are located in `src/likec4/`:
+The LikeC4 model files are located in `c4/`:
 
 ```
-src/likec4/
+c4/
 ├── spec.c4      # Element and relationship type definitions
 ├── model.c4     # Architecture model (systems, containers, components)
 └── views.c4     # View definitions (diagrams)
@@ -26,7 +26,7 @@ src/likec4/
 
 ## Adding a New Element
 
-To add a new element to the architecture, edit `src/likec4/model.c4`:
+To add a new element to the architecture, edit `c4/model.c4`:
 
 ```c4
 // Add a new external system
@@ -41,7 +41,7 @@ ecommerce.api -> monitoring 'Sends metrics'
 
 ## Creating a New View
 
-Views are defined in `src/likec4/views.c4`. Here's how to create a new view:
+Views are defined in `c4/views.c4`. Here's how to create a new view:
 
 ```c4
 views {

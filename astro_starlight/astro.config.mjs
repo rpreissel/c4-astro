@@ -137,7 +137,7 @@ export default defineConfig({
 	vite: {
 		plugins: [
 			LikeC4VitePlugin({
-				workspace: '../likec4',
+				workspace: '../c4',
 			}),
 			umlPlugin(),
 		],

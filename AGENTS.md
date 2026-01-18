@@ -52,7 +52,7 @@ npx astro check
 │   └── ordnerA/
 │       ├── file2.puml
 │       └── file3.puml
-├── likec4/                     # LikeC4 model definitions (root level)
+├── c4/                         # LikeC4 model definitions (root level)
 │   ├── ecommerce/              # E-Commerce C4 model
 │   │   ├── likec4.config.json
 │   │   ├── spec.c4
@@ -189,7 +189,7 @@ views {
 ## Multi-Project LikeC4 Setup
 
 Each project needs:
-1. Separate folder in `likec4/{project-name}/`
+1. Separate folder in `c4/{project-name}/`
 2. `likec4.config.json` with `"name": "project-name"`
 3. Separate Astro component in `astro_starlight/src/components/` importing from `likec4:react/{project-name}`
 
@@ -221,11 +221,11 @@ sidebar: [
 3. Add to sidebar in `astro_starlight/astro.config.mjs`
 
 ### Add new C4 view
-1. Define view in `likec4/{project}/views.c4`
+1. Define view in `c4/{project}/views.c4`
 2. Reference viewId in MDX: `<C4View viewId="viewName" />`
 
 ### Add new C4 project
-1. Create folder `likec4/{project-name}/`
+1. Create folder `c4/{project-name}/`
 2. Add `likec4.config.json`, `spec.c4`, `model.c4`, `views.c4`
 3. Create Astro component `astro_starlight/src/components/C4View{ProjectName}.astro`
 4. Import from `likec4:react/{project-name}`

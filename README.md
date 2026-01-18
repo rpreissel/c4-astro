@@ -9,7 +9,7 @@ Documentation site with interactive C4 architecture diagrams and PlantUML suppor
 ```
 /
 ├── uml/                    # PlantUML diagrams
-├── likec4/                 # LikeC4 C4 model definitions
+├── c4/                     # LikeC4 C4 model definitions
 │   ├── ecommerce/          # E-Commerce project
 │   └── projekt-b/          # Projekt B (CRM)
 └── astro_starlight/        # Astro Starlight documentation site
