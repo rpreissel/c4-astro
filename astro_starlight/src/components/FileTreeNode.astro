@@ -1,0 +1,33 @@
+---
+import FileTreeNode from './FileTreeNode.astro';
+
+interface FileNode {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  children: FileNode[];
+}
+
+interface Props {
+  node: FileNode;
+  level?: number;
+  base: string;
+}
+
+const { node, level = 0, base } = Astro.props;
+---
+
+{node.isDirectory ? (
+  <details class="folder-accordion" style={`--level: ${level}`}>
+    <summary class="folder-header">{node.name}/</summary>
+    <div class="folder-content">
+      {node.children.map((child) => (
+        <FileTreeNode node={child} level={level + 1} base={base} />
+      ))}
+    </div>
+  </details>
+) : (
+  <a href={`${base}uml/${node.path}/`} class="tree-file" style={`--level: ${level}`}>
+    {node.name}
+  </a>
+)}

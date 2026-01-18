@@ -1,5 +1,6 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import FileTreeNode from '../../components/FileTreeNode.astro';
 import { findPumlFiles } from '../../lib/plantuml.mjs';
 import { join } from 'node:path';
 
@@ -8,14 +9,6 @@ interface FileNode {
   path: string;
   isDirectory: boolean;
   children: FileNode[];
-}
-
-interface TreeLine {
-  prefix: string;
-  connector: string;
-  name: string;
-  path: string;
-  isDirectory: boolean;
 }
 
 // Lade alle .puml-Dateien
@@ -68,34 +61,35 @@ function buildTree(files: { relativePath: string }[]): FileNode[] {
   return sortNodes(root);
 }
 
-// Flatten tree zu Zeilen für einfaches Rendering
-function flattenTree(nodes: FileNode[], prefix: string = ''): TreeLine[] {
-  const lines: TreeLine[] = [];
-  
-  nodes.forEach((node, index) => {
-    const isLast = index === nodes.length - 1;
-    const connector = isLast ? '└── ' : '├── ';
-    
-    lines.push({
-      prefix,
-      connector,
-      name: node.name,
-      path: node.path,
-      isDirectory: node.isDirectory,
-    });
-    
-    if (node.children.length > 0) {
-      const childPrefix = prefix + (isLast ? '    ' : '│   ');
-      lines.push(...flattenTree(node.children, childPrefix));
-    }
-  });
-  
-  return lines;
-}
-
 const tree = buildTree(files);
-const treeLines = flattenTree(tree);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+
+{/* Rekursive Render-Funktion */}
+{(() => {
+  const renderNodes = (nodes: FileNode[], level: number = 0): any[] => {
+    return nodes.map((node) => {
+      if (node.isDirectory) {
+        return (
+          <details class="folder-accordion" style={`--level: ${level}`}>
+            <summary class="folder-header">{node.name}/</summary>
+            <div class="folder-content">
+              {renderNodes(node.children, level + 1)}
+            </div>
+          </details>
+        );
+      } else {
+        return (
+          <a href={`${base}uml/${node.path}/`} class="tree-file" style={`--level: ${level}`}>
+            {node.name}
+          </a>
+        );
+      }
+    });
+  };
+
+  return null; // Diese Funktion wird nur definiert, nicht gerendert
+})()}
 ---
 
 <StarlightPage frontmatter={{ title: 'UML Diagramme', description: 'Übersicht aller PlantUML-Diagramme' }}>
@@ -105,15 +99,8 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
   
   <div class="file-tree">
     <div class="tree-root">uml/</div>
-    {treeLines.map((line) => (
-      <div class="tree-item">
-        <span class="tree-prefix">{line.prefix}{line.connector}</span>
-        {line.isDirectory ? (
-          <span class="tree-folder">{line.name}/</span>
-        ) : (
-          <a href={`${base}uml/${line.path}/`} class="tree-file">{line.name}</a>
-        )}
-      </div>
+    {tree.map((node) => (
+      <FileTreeNode node={node} level={0} base={base} />
     ))}
   </div>
 </StarlightPage>
@@ -138,29 +125,75 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
   .tree-root {
     font-weight: 600;
     color: var(--sl-color-white);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+</style>
+
+<style is:global>
+  /* Akkordeon-Ordner */
+  .file-tree .folder-accordion {
+    margin: 0.25rem 0;
+    margin-left: calc(var(--level, 0) * 1.5rem);
   }
 
-  .tree-item {
-    white-space: nowrap;
-  }
-
-  .tree-prefix {
-    color: var(--sl-color-gray-3);
+  .file-tree .folder-header {
+    cursor: pointer;
     user-select: none;
-  }
-
-  .tree-folder {
     color: var(--sl-color-text);
     font-weight: 500;
+    padding: 0.25rem 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
   }
 
-  .tree-file {
+  .file-tree .folder-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .file-tree .folder-header::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.7em;
+    transition: transform 0.2s ease;
+    color: var(--sl-color-gray-3);
+  }
+
+  .file-tree .folder-accordion[open] > .folder-header::before {
+    transform: rotate(90deg);
+  }
+
+  .file-tree .folder-header:hover {
+    color: var(--sl-color-white);
+  }
+
+  .file-tree .folder-header:hover::before {
+    color: var(--sl-color-text-accent);
+  }
+
+  /* Ordner-Inhalt */
+  .file-tree .folder-content {
+    margin-top: 0.25rem;
+  }
+
+  /* Dateien */
+  .file-tree .tree-file {
+    display: block;
     color: var(--sl-color-text-accent);
     text-decoration: none;
+    padding: 0.25rem 0;
+    margin-left: calc(var(--level, 0) * 1.5rem);
+    margin-top: 0.25rem;
   }
 
-  .tree-file:hover {
+  .file-tree .tree-file:hover {
     text-decoration: underline;
+    color: var(--sl-color-white);
+  }
+
+  .file-tree .tree-file::before {
+    content: '📄 ';
+    margin-right: 0.5rem;
   }
 </style>
