@@ -1,21 +1,21 @@
 ---
-title: LikeC4View Properties Test
-description: Test page demonstrating all available LikeC4View component properties
+title: C4View Properties Test
+description: Test page demonstrating all available C4View component properties
 ---
 
-import LikeC4View from '../../../components/LikeC4ViewEcommerce.astro'
+import C4View from '../../../components/C4ViewEcommerce.astro'
 
-This page demonstrates all available properties of the `LikeC4View` component.
+This page demonstrates all available properties of the `C4View` component.
 
 ## Default Configuration
 
 The simplest usage with just `viewId`:
 
 ```astro
-<LikeC4View viewId="index" />
+<C4View viewId="index" />
 ```
 
-<LikeC4View viewId="index" />
+<C4View viewId="index" />
 
 ---
 
@@ -24,42 +24,42 @@ The simplest usage with just `viewId`:
 ### Transparent (default)
 
 ```astro
-<LikeC4View viewId="index" background="transparent" />
+<C4View viewId="index" background="transparent" />
 ```
 
-<LikeC4View viewId="index" background="transparent" />
+<C4View viewId="index" background="transparent" />
 
 ### Dots
 
 ```astro
-<LikeC4View viewId="index" background="dots" />
+<C4View viewId="index" background="dots" />
 ```
 
-<LikeC4View viewId="index" background="dots" />
+<C4View viewId="index" background="dots" />
 
 ### Lines
 
 ```astro
-<LikeC4View viewId="index" background="lines" />
+<C4View viewId="index" background="lines" />
 ```
 
-<LikeC4View viewId="index" background="lines" />
+<C4View viewId="index" background="lines" />
 
 ### Cross
 
 ```astro
-<LikeC4View viewId="index" background="cross" />
+<C4View viewId="index" background="cross" />
 ```
 
-<LikeC4View viewId="index" background="cross" />
+<C4View viewId="index" background="cross" />
 
 ### Solid
 
 ```astro
-<LikeC4View viewId="index" background="solid" />
+<C4View viewId="index" background="solid" />
 ```
 
-<LikeC4View viewId="index" background="solid" />
+<C4View viewId="index" background="solid" />
 
 ---
 
@@ -68,10 +68,10 @@ The simplest usage with just `viewId`:
 Show the control panel in the top-left corner:
 
 ```astro
-<LikeC4View viewId="index" controls={true} />
+<C4View viewId="index" controls={true} />
 ```
 
-<LikeC4View viewId="index" controls={true} />
+<C4View viewId="index" controls={true} />
 
 ---
 
@@ -80,10 +80,10 @@ Show the control panel in the top-left corner:
 Enable panning and zooming for interactive exploration:
 
 ```astro
-<LikeC4View viewId="index" pannable={true} zoomable={true} controls={true} />
+<C4View viewId="index" pannable={true} zoomable={true} controls={true} />
 ```
 
-<LikeC4View viewId="index" pannable={true} zoomable={true} controls={true} />
+<C4View viewId="index" pannable={true} zoomable={true} controls={true} />
 
 ---
 
@@ -92,18 +92,18 @@ Enable panning and zooming for interactive exploration:
 ### Light Mode
 
 ```astro
-<LikeC4View viewId="index" colorScheme="light" />
+<C4View viewId="index" colorScheme="light" />
 ```
 
-<LikeC4View viewId="index" colorScheme="light" />
+<C4View viewId="index" colorScheme="light" />
 
 ### Dark Mode
 
 ```astro
-<LikeC4View viewId="index" colorScheme="dark" />
+<C4View viewId="index" colorScheme="dark" />
 ```
 
-<LikeC4View viewId="index" colorScheme="dark" />
+<C4View viewId="index" colorScheme="dark" />
 
 ---
 
@@ -114,25 +114,25 @@ Enable panning and zooming for interactive exploration:
 Click on the diagram to open the browser popup:
 
 ```astro
-<LikeC4View viewId="index" browser={true} />
+<C4View viewId="index" browser={true} />
 ```
 
-<LikeC4View viewId="index" browser={true} />
+<C4View viewId="index" browser={true} />
 
 ### Disabled
 
 No popup on click:
 
 ```astro
-<LikeC4View viewId="index" browser={false} />
+<C4View viewId="index" browser={false} />
 ```
 
-<LikeC4View viewId="index" browser={false} />
+<C4View viewId="index" browser={false} />
 
 ### Custom Browser Configuration
 
 ```astro
-<LikeC4View 
+<C4View 
   viewId="index" 
   browser={{
     background: 'dots',
@@ -147,7 +147,7 @@ No popup on click:
 />
 ```
 
-<LikeC4View 
+<C4View 
   viewId="index" 
   browser={{
     background: 'dots',
@@ -168,10 +168,10 @@ No popup on click:
 Double-click on a node to highlight incoming/outgoing edges:
 
 ```astro
-<LikeC4View viewId="index" enableFocusMode={true} browser={false} />
+<C4View viewId="index" enableFocusMode={true} browser={false} />
 ```
 
-<LikeC4View viewId="index" enableFocusMode={true} browser={false} />
+<C4View viewId="index" enableFocusMode={true} browser={false} />
 
 ---
 
@@ -180,10 +180,10 @@ Double-click on a node to highlight incoming/outgoing edges:
 Enable modal with element details on click:
 
 ```astro
-<LikeC4View viewId="index" enableElementDetails={true} browser={false} />
+<C4View viewId="index" enableElementDetails={true} browser={false} />
 ```
 
-<LikeC4View viewId="index" enableElementDetails={true} browser={false} />
+<C4View viewId="index" enableElementDetails={true} browser={false} />
 
 ---
 
@@ -192,10 +192,10 @@ Enable modal with element details on click:
 Display element tags in the bottom-left corner:
 
 ```astro
-<LikeC4View viewId="index" enableElementTags={true} />
+<C4View viewId="index" enableElementTags={true} />
 ```
 
-<LikeC4View viewId="index" enableElementTags={true} />
+<C4View viewId="index" enableElementTags={true} />
 
 ---
 
@@ -204,10 +204,10 @@ Display element tags in the bottom-left corner:
 Show dropdown with details on relationship label click:
 
 ```astro
-<LikeC4View viewId="index" enableRelationshipDetails={true} browser={false} />
+<C4View viewId="index" enableRelationshipDetails={true} browser={false} />
 ```
 
-<LikeC4View viewId="index" enableRelationshipDetails={true} browser={false} />
+<C4View viewId="index" enableRelationshipDetails={true} browser={false} />
 
 ---
 
@@ -216,10 +216,10 @@ Show dropdown with details on relationship label click:
 Show back/forward navigation buttons (useful with controls):
 
 ```astro
-<LikeC4View viewId="index" controls={true} showNavigationButtons={true} />
+<C4View viewId="index" controls={true} showNavigationButtons={true} />
 ```
 
-<LikeC4View viewId="index" controls={true} showNavigationButtons={true} />
+<C4View viewId="index" controls={true} showNavigationButtons={true} />
 
 ---
 
@@ -228,10 +228,10 @@ Show back/forward navigation buttons (useful with controls):
 Display view notations (if available):
 
 ```astro
-<LikeC4View viewId="index" enableNotations={true} />
+<C4View viewId="index" enableNotations={true} />
 ```
 
-<LikeC4View viewId="index" enableNotations={true} />
+<C4View viewId="index" enableNotations={true} />
 
 ---
 
@@ -240,18 +240,18 @@ Display view notations (if available):
 ### Number (pixels)
 
 ```astro
-<LikeC4View viewId="index" fitViewPadding={50} />
+<C4View viewId="index" fitViewPadding={50} />
 ```
 
-<LikeC4View viewId="index" fitViewPadding={50} />
+<C4View viewId="index" fitViewPadding={50} />
 
 ### With x/y padding
 
 ```astro
-<LikeC4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
+<C4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
 ```
 
-<LikeC4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
+<C4View viewId="index" fitViewPadding={{ x: 100, y: 20 }} />
 
 ---
 
@@ -260,18 +260,18 @@ Display view notations (if available):
 ### Enabled (default)
 
 ```astro
-<LikeC4View viewId="index" keepAspectRatio={true} />
+<C4View viewId="index" keepAspectRatio={true} />
 ```
 
-<LikeC4View viewId="index" keepAspectRatio={true} />
+<C4View viewId="index" keepAspectRatio={true} />
 
 ### Disabled
 
 ```astro
-<LikeC4View viewId="index" keepAspectRatio={false} />
+<C4View viewId="index" keepAspectRatio={false} />
 ```
 
-<LikeC4View viewId="index" keepAspectRatio={false} />
+<C4View viewId="index" keepAspectRatio={false} />
 
 ---
 
@@ -280,10 +280,10 @@ Display view notations (if available):
 Performance optimization for large diagrams:
 
 ```astro
-<LikeC4View viewId="index" reduceGraphics={true} />
+<C4View viewId="index" reduceGraphics={true} />
 ```
 
-<LikeC4View viewId="index" reduceGraphics={true} />
+<C4View viewId="index" reduceGraphics={true} />
 
 ---
 
@@ -292,18 +292,18 @@ Performance optimization for large diagrams:
 ### As Diagram (default)
 
 ```astro
-<LikeC4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
+<C4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
 ```
 
-<LikeC4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
+<C4View viewId="checkoutSequence" dynamicViewVariant="diagram" />
 
 ### As Sequence Diagram
 
 ```astro
-<LikeC4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
+<C4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
 ```
 
-<LikeC4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
+<C4View viewId="checkoutSequence" dynamicViewVariant="sequence" />
 
 ---
 
@@ -312,10 +312,10 @@ Performance optimization for large diagrams:
 Enable step-by-step walkthrough for dynamic views:
 
 ```astro
-<LikeC4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
+<C4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
 ```
 
-<LikeC4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
+<C4View viewId="checkoutSequence" enableDynamicViewWalkthrough={true} controls={true} />
 
 ---
 
@@ -324,7 +324,7 @@ Enable step-by-step walkthrough for dynamic views:
 All features enabled:
 
 ```astro
-<LikeC4View 
+<C4View 
   viewId="index" 
   pannable={true}
   zoomable={true}
@@ -354,7 +354,7 @@ All features enabled:
 />
 ```
 
-<LikeC4View 
+<C4View 
   viewId="index" 
   pannable={true}
   zoomable={true}

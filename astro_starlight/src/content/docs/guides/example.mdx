@@ -66,11 +66,11 @@ To embed a diagram in your MDX documentation:
 title: My Architecture Page
 ---
 
-import LikeC4View from '../../../components/LikeC4View.astro'
+import C4View from '../../../components/C4View.astro'
 
 ## System Overview
 
-<LikeC4View viewId="index" />
+<C4View viewId="index" />
 ```
 
 ### Available Views
@@ -116,9 +116,9 @@ views {
 }
 ```
 
-## LikeC4View Props
+## C4View Props
 
-The `LikeC4View` component accepts these props:
+The `C4View` component accepts these props:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -132,10 +132,10 @@ To render a dynamic view as a sequence diagram, use the `displayVariant` prop:
 
 ```mdx
 {/* Default: renders as diagram */}
-<LikeC4View viewId="checkoutSequence" />
+<C4View viewId="checkoutSequence" />
 
 {/* Renders as sequence diagram */}
-<LikeC4View viewId="checkoutSequence" displayVariant="sequence" />
+<C4View viewId="checkoutSequence" displayVariant="sequence" />
 ```
 
 ## Further Reading

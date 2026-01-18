@@ -67,8 +67,8 @@ npx astro check
     ├── src/
     │   ├── assets/             # Static assets (images, etc.)
     │   ├── components/         # Astro/React components
-    │   │   ├── LikeC4ViewEcommerce.astro
-    │   │   └── LikeC4ViewProjektB.astro
+    │   │   ├── C4ViewEcommerce.astro
+    │   │   └── C4ViewProjektB.astro
     │   ├── content/
     │   │   └── docs/           # MDX documentation pages
     │   ├── pages/
@@ -172,11 +172,11 @@ views {
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Astro components | PascalCase | `LikeC4ViewEcommerce.astro` |
+| Astro components | PascalCase | `C4ViewEcommerce.astro` |
 | MDX files | kebab-case | `system-context.mdx` |
 | C4 elements | camelCase | `webApp`, `orderService` |
 | C4 views | camelCase | `checkoutSequence` |
-| CSS classes | kebab-case | `likec4-container` |
+| CSS classes | kebab-case | `c4-container` |
 
 ### Imports
 
@@ -215,17 +215,17 @@ sidebar: [
 
 ### Add new documentation page
 1. Create `.mdx` file in `astro_starlight/src/content/docs/`
-2. Import LikeC4View component
+2. Import C4View component
 3. Add to sidebar in `astro_starlight/astro.config.mjs`
 
 ### Add new C4 view
 1. Define view in `likec4/{project}/views.c4`
-2. Reference viewId in MDX: `<LikeC4View viewId="viewName" />`
+2. Reference viewId in MDX: `<C4View viewId="viewName" />`
 
 ### Add new C4 project
 1. Create folder `likec4/{project-name}/`
 2. Add `likec4.config.json`, `spec.c4`, `model.c4`, `views.c4`
-3. Create Astro component `astro_starlight/src/components/LikeC4View{ProjectName}.astro`
+3. Create Astro component `astro_starlight/src/components/C4View{ProjectName}.astro`
 4. Import from `likec4:react/{project-name}`
 
 ### Add new PlantUML diagram

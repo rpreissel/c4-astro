@@ -1,0 +1,16 @@
+---
+/**
+ * C4 View component for the E-Commerce project.
+ */
+import C4ViewBase from './C4ViewBase.astro'
+import { LikeC4View, type LikeC4ViewId } from 'likec4:react/ecommerce'
+import { extractPropsWithDefaults, type C4ViewProps } from './C4ViewBase.astro'
+
+interface Props extends C4ViewProps<LikeC4ViewId> {}
+
+const p = extractPropsWithDefaults(Astro.props)
+---
+
+<C4ViewBase>
+  <LikeC4View {...p} client:only="react" />
+</C4ViewBase>

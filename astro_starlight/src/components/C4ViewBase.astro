@@ -1,5 +1,9 @@
+---
 /**
- * Shared type definitions and default values for LikeC4 view components.
+ * Base component for LikeC4 views.
+ * Project-specific wrappers should import this and use the slot for the React component.
+ * 
+ * This file also exports shared type definitions and default values for LikeC4 view components.
  */
 
 export type PaddingWithUnit = `${number}px` | `${number}%` | number
@@ -33,7 +37,7 @@ export interface BrowserProps {
   reduceGraphics?: 'auto' | boolean
 }
 
-export interface LikeC4ViewProps<TViewId = string> {
+export interface C4ViewProps<TViewId = string> {
   /**
    * The view ID
    */
@@ -168,7 +172,7 @@ export interface LikeC4ViewProps<TViewId = string> {
  * Extract props with defaults from Astro.props.
  * Returns props compatible with LikeC4View React component.
  */
-export function extractPropsWithDefaults<TViewId>(props: LikeC4ViewProps<TViewId>): Required<Omit<LikeC4ViewProps<TViewId>, 'colorScheme'>> & Pick<LikeC4ViewProps<TViewId>, 'colorScheme'> {
+export function extractPropsWithDefaults<TViewId>(props: C4ViewProps<TViewId>): Required<Omit<C4ViewProps<TViewId>, 'colorScheme'>> & Pick<C4ViewProps<TViewId>, 'colorScheme'> {
   const {
     viewId,
     pannable = false,
@@ -217,3 +221,19 @@ export function extractPropsWithDefaults<TViewId>(props: LikeC4ViewProps<TViewId
     injectFontCss,
   }
 }
+---
+
+<div class="c4-container">
+  <slot />
+</div>
+
+<style>
+  .c4-container {
+    width: 100%;
+    min-height: 400px;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+</style>
