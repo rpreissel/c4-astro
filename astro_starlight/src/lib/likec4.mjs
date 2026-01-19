@@ -158,6 +158,26 @@ function capitalize(str) {
 }
 
 /**
+ * Generates the component name for a given project ID
+ * Converts kebab-case project IDs to PascalCase component names
+ * 
+ * @param {string} projectId - Project ID (e.g. 'ecommerce', 'projekt-b')
+ * @returns {string} Component name (e.g. 'C4ViewEcommerce', 'C4ViewProjektB')
+ * 
+ * @example
+ * getComponentName('ecommerce') // 'C4ViewEcommerce'
+ * getComponentName('projekt-b') // 'C4ViewProjektB'
+ */
+export function getComponentName(projectId) {
+  // Split by hyphens and capitalize each part, then join
+  const pascalCase = projectId
+    .split('-')
+    .map(part => capitalize(part))
+    .join('');
+  return `C4View${pascalCase}`;
+}
+
+/**
  * Escape special regex characters
  * @param {string} str 
  * @returns {string}

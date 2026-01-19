@@ -5,8 +5,22 @@
  */
 import type { GetStaticPaths } from 'astro';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { findC4Projects, getProjectViews, findC4ViewReferences } from '../../lib/likec4.mjs';
+import { findC4Projects, getProjectViews, findC4ViewReferences, getComponentName } from '../../lib/likec4.mjs';
 import { join } from 'node:path';
+
+// Dynamically import all C4View components using Vite's glob import
+// This automatically includes all files matching the pattern
+const componentModules = import.meta.glob('../../components/C4View*.astro', { eager: true });
+
+// Build a map from component name to component
+const componentMap = Object.fromEntries(
+  Object.entries(componentModules).map(([path, module]) => {
+    // Extract component name from path: '../../components/C4ViewEcommerce.astro' -> 'C4ViewEcommerce'
+    const match = path.match(/\/([^/]+)\.astro$/);
+    const componentName = match ? match[1] : '';
+    return [componentName, module.default];
+  })
+);
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const workspacePath = join(process.cwd(), '..', 'c4');
@@ -68,14 +82,22 @@ interface Props {
 
 const { projectId, viewId, viewTitle, viewDescription, viewType, viewMode, folderPath, references } = Astro.props;
 
-// Component map for dynamic loading
-const componentMap = {
-  'ecommerce': () => import('../../components/C4ViewEcommerce.astro'),
-  'projekt-b': () => import('../../components/C4ViewProjektB.astro'),
-};
+// Get the expected component name for this project
+const componentName = getComponentName(projectId);
 
-const C4ViewModule = await componentMap[projectId]();
-const C4ViewComponent = C4ViewModule.default;
+// Look up the component in our map
+const C4ViewComponent = componentMap[componentName];
+
+if (!C4ViewComponent) {
+  const availableComponents = Object.keys(componentMap).join(', ');
+  throw new Error(
+    `Failed to load C4 component for project "${projectId}".\n` +
+    `Expected component: ${componentName}.astro\n` +
+    `Available components: ${availableComponents}\n` +
+    `Make sure the component file exists at: src/components/${componentName}.astro\n` +
+    `Component files must follow the naming convention: C4View{PascalCaseProjectId}.astro`
+  );
+}
 
 // For dynamic views with sequence mode
 const displayVariant = viewMode === 'sequence' ? 'sequence' : undefined;
