@@ -1,0 +1,310 @@
+---
+/**
+ * C4 Architecture Diagrams - Overview Page
+ * Tree view of all C4 views from all projects
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { findC4Projects, getProjectViews } from '../../lib/likec4.mjs';
+import { join } from 'node:path';
+
+interface TreeNode {
+  name: string;
+  path: string;
+  isFolder: boolean;
+  isProject: boolean;
+  viewId?: string;
+  viewType?: string;
+  viewMode?: string;
+  children: TreeNode[];
+}
+
+const workspacePath = join(process.cwd(), '..', 'c4');
+const projectIds = await findC4Projects(workspacePath);
+
+// Build hierarchical tree structure for all projects
+const tree: TreeNode[] = [];
+
+for (const projectId of projectIds) {
+  const views = await getProjectViews(workspacePath, projectId);
+  
+  // Create project node
+  const projectNode: TreeNode = {
+    name: projectId,
+    path: projectId,
+    isFolder: true,
+    isProject: true,
+    children: []
+  };
+  
+  // Build folder tree for this project
+  for (const view of views) {
+    const folderParts = view.folderPath ? view.folderPath.split('/') : [];
+    let currentChildren = projectNode.children;
+    let currentPath = projectId;
+    
+    // Create folder nodes for each level
+    for (const folderName of folderParts) {
+      currentPath += '/' + folderName;
+      let folderNode = currentChildren.find(n => n.name === folderName && n.isFolder);
+      
+      if (!folderNode) {
+        folderNode = {
+          name: folderName,
+          path: currentPath,
+          isFolder: true,
+          isProject: false,
+          children: []
+        };
+        currentChildren.push(folderNode);
+      }
+      
+      currentChildren = folderNode.children;
+    }
+    
+    // Add view as leaf node
+    currentChildren.push({
+      name: view.title,
+      path: view.folderPath 
+        ? `${projectId}/${view.folderPath}/${view.id}`
+        : `${projectId}/${view.id}`,
+      isFolder: false,
+      isProject: false,
+      viewId: view.id,
+      viewType: view.type,
+      viewMode: view.mode,
+      children: []
+    });
+  }
+  
+  // Sort children: folders first, then views alphabetically
+  const sortNodes = (nodes: TreeNode[]) => {
+    nodes.sort((a, b) => {
+      if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    nodes.forEach(n => sortNodes(n.children));
+  };
+  sortNodes(projectNode.children);
+  
+  tree.push(projectNode);
+}
+
+const base = import.meta.env.BASE_URL;
+---
+
+{/* Recursive tree rendering function */}
+{(() => {
+  const renderNode = (node: TreeNode, level: number = 0): any => {
+    if (node.isFolder) {
+      return (
+        <details class="folder-accordion" style={`--level: ${level}`}>
+          <summary class={node.isProject ? "project-header" : "folder-header"}>
+            {node.name}/
+          </summary>
+          <div class="folder-content">
+            {node.children.map(child => renderNode(child, level + 1))}
+          </div>
+        </details>
+      );
+    } else {
+      return (
+        <a href={`${base}/c4/${node.path}/`} class="tree-view" style={`--level: ${level}`}>
+          <span class="view-name">{node.name}</span>
+          {node.viewType && (
+            <span class="view-badge" data-type={node.viewType}>
+              {node.viewType}
+            </span>
+          )}
+        </a>
+      );
+    }
+  };
+  
+  return null;
+})()}
+
+<StarlightPage frontmatter={{ 
+  title: 'C4 Architekturdiagramme', 
+  description: 'Alle C4-Architekturdiagramme aus allen Projekten',
+  tableOfContents: false
+}}>
+  <p class="intro">
+    Alle LikeC4-Architekturdiagramme nach Projekt und Ordner organisiert:
+  </p>
+  
+  <div class="file-tree">
+    <div class="tree-root">c4/</div>
+    {tree.map((projectNode) => {
+      const renderNode = (node: TreeNode, level: number = 0): any => {
+        if (node.isFolder) {
+          return (
+            <details class="folder-accordion" style={`--level: ${level}`}>
+              <summary class={node.isProject ? "project-header" : "folder-header"}>
+                {node.name}/
+              </summary>
+              <div class="folder-content">
+                {node.children.map(child => renderNode(child, level + 1))}
+              </div>
+            </details>
+          );
+        } else {
+          return (
+            <a href={`${base}/c4/${node.path}/`} class="tree-view" style={`--level: ${level}`}>
+              <span class="view-name">{node.name}</span>
+              {node.viewType && (
+                <span class="view-badge" data-type={node.viewType}>
+                  {node.viewType}
+                </span>
+              )}
+            </a>
+          );
+        }
+      };
+      
+      return renderNode(projectNode, 0);
+    })}
+  </div>
+</StarlightPage>
+
+<style>
+  .intro {
+    margin-bottom: 1.5rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .file-tree {
+    font-family: var(--__sl-font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    overflow-x: auto;
+  }
+
+  .tree-root {
+    font-weight: 600;
+    color: var(--sl-color-white);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Full width layout */
+  :global(.main-pane) {
+    --sl-content-width: 100%;
+  }
+  
+  :global(.right-sidebar-container) {
+    display: none;
+  }
+</style>
+
+<style is:global>
+  /* Folder/Project accordion */
+  .file-tree .folder-accordion {
+    margin: 0.25rem 0;
+    margin-left: calc(var(--level, 0) * 1.5rem);
+  }
+
+  .file-tree .folder-header,
+  .file-tree .project-header {
+    cursor: pointer;
+    user-select: none;
+    color: var(--sl-color-text);
+    font-weight: 500;
+    padding: 0.25rem 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .file-tree .project-header {
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .file-tree .folder-header::-webkit-details-marker,
+  .file-tree .project-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .file-tree .folder-header::before,
+  .file-tree .project-header::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.7em;
+    transition: transform 0.2s ease;
+    color: var(--sl-color-gray-3);
+  }
+
+  .file-tree .folder-accordion[open] > .folder-header::before,
+  .file-tree .folder-accordion[open] > .project-header::before {
+    transform: rotate(90deg);
+  }
+
+  .file-tree .folder-header:hover,
+  .file-tree .project-header:hover {
+    color: var(--sl-color-white);
+  }
+
+  .file-tree .folder-header:hover::before,
+  .file-tree .project-header:hover::before {
+    color: var(--sl-color-text-accent);
+  }
+
+  /* Folder content */
+  .file-tree .folder-content {
+    margin-top: 0.25rem;
+  }
+
+  /* View links */
+  .file-tree .tree-view {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    margin-left: calc(var(--level, 0) * 1.5rem);
+    margin-top: 0.25rem;
+  }
+
+  .file-tree .tree-view:hover {
+    color: var(--sl-color-white);
+  }
+
+  .file-tree .tree-view:hover .view-name {
+    text-decoration: underline;
+  }
+
+  .file-tree .tree-view::before {
+    content: '📊 ';
+    margin-right: 0.5rem;
+  }
+
+  .file-tree .view-name {
+    flex: 1;
+  }
+
+  .file-tree .view-badge {
+    font-size: 0.7rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .file-tree .view-badge[data-type="dynamic"] {
+    background: var(--sl-color-blue-low);
+    color: var(--sl-color-blue-high);
+  }
+
+  .file-tree .view-badge[data-type="deployment"] {
+    background: var(--sl-color-purple-low);
+    color: var(--sl-color-purple-high);
+  }
+</style>

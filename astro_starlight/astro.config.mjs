@@ -126,14 +126,18 @@ export default defineConfig({
 					{ label: 'CRM Overview', slug: 'projekt-b' },
 				],
 			},
-				{
-					label: 'Reference',
-					autogenerate: { directory: 'reference' },
-				},
-				{
-					label: 'UML',
-					link: '/uml/',
-				},
+			{
+				label: 'Reference',
+				autogenerate: { directory: 'reference' },
+			},
+			{
+				label: 'UML',
+				link: '/uml/',
+			},
+			{
+				label: 'C4-Diagramme',
+				link: '/c4/',
+			},
 			],
 		}),
 		react(),

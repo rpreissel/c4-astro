@@ -1,0 +1,215 @@
+---
+/**
+ * C4 Architecture Diagrams - Detail Page
+ * Shows individual C4 view with interactive diagram and references
+ */
+import type { GetStaticPaths } from 'astro';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { findC4Projects, getProjectViews, findC4ViewReferences } from '../../lib/likec4.mjs';
+import { join } from 'node:path';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const workspacePath = join(process.cwd(), '..', 'c4');
+  const docsDir = join(process.cwd(), 'src', 'content', 'docs');
+  const projectIds = await findC4Projects(workspacePath);
+  
+  const paths = [];
+  
+  for (const projectId of projectIds) {
+    const views = await getProjectViews(workspacePath, projectId);
+    
+    for (const view of views) {
+      const references = await findC4ViewReferences(projectId, view.id, docsDir);
+      
+      // Build slug: projectId/[folderPath/]viewId
+      // Examples:
+      //   - ecommerce/index (no folder)
+      //   - ecommerce/abc/containers (with folder 'abc')
+      const slugParts = [projectId];
+      if (view.folderPath) {
+        slugParts.push(view.folderPath);
+      }
+      slugParts.push(view.id);
+      const slug = slugParts.join('/');
+      
+      paths.push({
+        params: { 
+          slug 
+        },
+        props: {
+          projectId,
+          viewId: view.id,
+          viewTitle: view.title,
+          viewDescription: view.description,
+          viewType: view.type,
+          viewMode: view.mode,
+          viewPath: view.viewPath,
+          folderPath: view.folderPath,
+          references
+        }
+      });
+    }
+  }
+  
+  return paths;
+};
+
+interface Props {
+  projectId: string;
+  viewId: string;
+  viewTitle: string;
+  viewDescription: string | null;
+  viewType: string;
+  viewMode: string | null;
+  viewPath: string;
+  folderPath: string;
+  references: Array<{slug: string, title: string}>;
+}
+
+const { projectId, viewId, viewTitle, viewDescription, viewType, viewMode, folderPath, references } = Astro.props;
+
+// Component map for dynamic loading
+const componentMap = {
+  'ecommerce': () => import('../../components/C4ViewEcommerce.astro'),
+  'projekt-b': () => import('../../components/C4ViewProjektB.astro'),
+};
+
+const C4ViewModule = await componentMap[projectId]();
+const C4ViewComponent = C4ViewModule.default;
+
+// For dynamic views with sequence mode
+const displayVariant = viewMode === 'sequence' ? 'sequence' : undefined;
+
+// Build full hierarchical path for display
+const pathParts = [projectId];
+if (folderPath) {
+  pathParts.push(...folderPath.split('/'));
+}
+pathParts.push(viewTitle);
+const fullPath = pathParts.join(' / ');
+---
+
+<StarlightPage frontmatter={{ 
+  title: fullPath, 
+  description: viewDescription || `C4 ${viewType} diagram: ${viewTitle}`,
+  tableOfContents: false 
+}}>
+  <nav class="back-nav">
+    <a href={`${import.meta.env.BASE_URL}/c4/`} class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+      Alle C4-Diagramme
+    </a>
+  </nav>
+
+  {viewDescription && (
+    <p class="view-description">{viewDescription}</p>
+  )}
+
+  <div class="c4-diagram">
+    <C4ViewComponent viewId={viewId} displayVariant={displayVariant} />
+  </div>
+
+  {references.length > 0 && (
+    <section class="c4-references">
+      <h2>Verwendet in</h2>
+      <ul>
+        {references.map(ref => (
+          <li>
+            <a href={`${import.meta.env.BASE_URL}/${ref.slug}/`}>{ref.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</StarlightPage>
+
+<style>
+  .back-nav {
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s ease;
+  }
+
+  .back-link:hover {
+    color: var(--sl-color-text-accent);
+  }
+
+  .back-link svg {
+    flex-shrink: 0;
+  }
+
+  .view-description {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--sl-color-bg-sidebar);
+    border-left: 3px solid var(--sl-color-text-accent);
+    border-radius: 0.25rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .c4-diagram {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--sl-color-bg-nav);
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .c4-references {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .c4-references h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--sl-color-text);
+  }
+
+  .c4-references ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .c4-references li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+
+  .c4-references li:last-child {
+    border-bottom: none;
+  }
+
+  .c4-references a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .c4-references a:hover {
+    text-decoration: underline;
+  }
+
+  /* Full width layout when no table of contents */
+  :global(.main-pane) {
+    --sl-content-width: 100%;
+  }
+  
+  :global(.right-sidebar-container) {
+    display: none;
+  }
+</style>

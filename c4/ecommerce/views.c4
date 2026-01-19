@@ -17,7 +17,7 @@ views {
 
   // Container View - shows internal structure of the system
   view containers of ecommerce {
-    title 'Container Diagram'
+    title 'abc/Container Diagram'
     description 'Internal structure of the E-Commerce Platform'
 
     include *
@@ -129,5 +129,26 @@ views {
       paymentGateway,
       ecommerce.database,
       emailService
+  }
+
+  // Test deep hierarchy: level 1
+  view testDeep1 {
+    title 'deep/level1/Test View L1'
+    description 'Test view at folder level 1'
+    include customer, ecommerce
+  }
+
+  // Test deep hierarchy: level 2
+  view testDeep2 {
+    title 'deep/level1/level2/Test View L2'
+    description 'Test view at folder level 2'
+    include customer, ecommerce, paymentGateway
+  }
+
+  // Test deep hierarchy: another branch
+  view testDeep3 {
+    title 'deep/branch2/Test View Branch2'
+    description 'Test view in another branch'
+    include admin, ecommerce
   }
 }
