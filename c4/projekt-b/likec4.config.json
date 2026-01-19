@@ -1,4 +1,9 @@
 {
   "$schema": "https://likec4.dev/schemas/config.json",
-  "name": "projekt-b"
+  "name": "projekt-b",
+  "views": {
+    "dynamic": {
+      "notation": "sequence"
+    }
+  }
 }
